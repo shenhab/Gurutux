@@ -16,7 +16,7 @@ What is IP-Tables ?
 
  The Contents of IP-Tables:
 |Name|Description|
-|-------|--------|
+|---|---|
 |Tables|The Table is: A set of chains which designed to do a specific function|
 |Chains|The Chain is: A set of rules that are applied on packets that traverses the chain. Every Chain have a specified purpose which you will know while we are talking.|
 |Rules|A rule is a set of a condition or several conditions together with a single action. the action of a rule will be applied if all the conditions of that rule have been achieved.|
