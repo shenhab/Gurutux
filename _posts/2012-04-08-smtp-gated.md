@@ -2,6 +2,7 @@
 layout: post
 title: "SMTP-Gated"
 date: 2012-04-08 12:15:00 -0000
+Author: "Copied"
 tags: Linux mail smtp spam
 ---
 
