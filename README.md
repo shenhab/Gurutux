@@ -1,2 +1,1 @@
 # GuRuTuX
-## Ask The GuRuTuX
