@@ -6,4 +6,7 @@ Author: "Mahmoud Elshenhab"
 tags: Serie A live Table standing
 ---
 
-<iframe width="100%" height="717" src="https://www.sofascore.com/tournament/33/37475/standings/tables/embed" frameborder="0"></iframe>
+<div class="video-container">
+  <iframe width="100%" height="717" src="https://www.sofascore.com/tournament/33/37475/standings/tables/embed" frameborder="0"></iframe>
+</div>
+  
