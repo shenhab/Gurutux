@@ -1,6 +1,6 @@
-title: ""
-description: ""
-show_downloads: false
+title: "The Blog"
+description: "I am a computer engineer who sometimes blog, and this is my space. Welcome :)"
+show_downloads: true
 markdown: GFM
 #google_analytics:
 #theme: jekyll-theme-midnight
