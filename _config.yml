@@ -1,7 +1,7 @@
 # _config.yml (Revised - Option A: Using the theme)
 
 title: "GuRuTuX" # Or a more specific title
-url: "https://your-username.github.io" # Replace with your actual site URL
+url: "https://gurutux.com" # Replace with your actual site URL
 baseurl: "" # Set to /repository-name if applicable, otherwise leave empty
 
 description: "Technical articles and analysis on software engineering and system design." # Example: More precise description
