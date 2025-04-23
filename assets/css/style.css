@@ -1,5 +1,38 @@
 /* --- /assets/css/style.css --- */
 
+/* --- Additions for Navigation --- */
+
+.site-nav {
+  margin-top: 1em; /* Add some space above the nav */
+  margin-bottom: 1em; /* Add some space below the nav */
+  text-align: center; /* Center the nav links */
+}
+
+.site-nav ul {
+  list-style: none; /* Remove bullet points */
+  padding: 0;
+  margin: 0;
+}
+
+.site-nav li {
+  display: inline-block; /* Arrange items horizontally */
+  margin: 0 1em; /* Space out the links */
+}
+
+.site-nav a {
+  text-decoration: none; /* Remove underlines from nav links */
+  font-weight: bold;
+  color: #333; /* Adjust color as needed */
+}
+
+.site-nav a:hover, 
+.site-nav a:focus {
+  color: #0056b3; /* Hover color */
+  text-decoration: underline; /* Add underline on hover */
+}
+
+/* --- End Navigation Additions --- */
+
 /* Basic Reset & Body Defaults */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* System font stack */
