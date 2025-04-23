@@ -1,4 +1,112 @@
----
----
+/* --- /assets/css/style.css --- */
 
-@import "{{ site.theme }}";
+/* Basic Reset & Body Defaults */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* Sensible system font stack */
+    line-height: 1.6;           /* Readability */
+    margin: 0 auto;             /* Center content horizontally */
+    padding: 1em;               /* Padding around content */
+    max-width: 800px;           /* Prevent excessive line length on wide screens */
+    background-color: #fdfdfd;  /* Light background */
+    color: #333;                /* Default text color */
+}
+
+/* Basic Link Styling */
+a {
+    color: #0056b3;             /* Standard link blue */
+    text-decoration: none;      /* Cleaner look */
+}
+
+a:hover,
+a:focus {
+    text-decoration: underline; /* Clear indication on interaction */
+    color: #003d80;             /* Darken link on hover/focus */
+}
+
+/* Header */
+header {
+    border-bottom: 2px solid #eee;
+    margin-bottom: 2em;
+    padding-bottom: 1em;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5em;           /* Prominent site title */
+    color: #111;
+}
+
+/* Main Content Area */
+main {
+    /* Main content area requires minimal specific styling */
+    /* Spacing is handled by elements within it, like <article> */
+}
+
+/* Article Styling */
+article {
+    border-bottom: 1px solid #eee; /* Separator between posts */
+    margin-bottom: 2.5em;       /* Vertical space between posts */
+    padding-bottom: 1.5em;      /* Padding within article before separator */
+}
+
+article h2 {
+    margin-top: 0;              /* Remove default top margin */
+    margin-bottom: 0.2em;       /* Space below heading */
+    font-size: 1.8em;           /* Post title size */
+}
+
+article h2 a {
+    color: #222;                /* Darker color for titles */
+    text-decoration: none;
+}
+
+article h2 a:hover,
+article h2 a:focus {
+    color: #0056b3;             /* Change color on hover/focus */
+    text-decoration: underline;
+}
+
+article time {
+    color: #666;                /* Subdued color for date */
+    font-size: 0.9em;
+    display: block;             /* Ensure it takes its own line */
+    margin-bottom: 1em;         /* Space below date */
+}
+
+/* Excerpt Container (if specific styling needed) */
+article div {
+    margin-bottom: 1em;         /* Space between excerpt and 'Read More' */
+}
+
+/* 'Read More' Link */
+article p a {
+    font-weight: bold;
+}
+
+/* Footer */
+footer {
+    margin-top: 3em;
+    padding-top: 1em;
+    border-top: 1px solid #eee;
+    font-size: 0.9em;
+    color: #777;
+    text-align: center;
+}
+
+/* Basic Responsiveness */
+@media (max-width: 600px) {
+    body {
+        padding: 0.5em;         /* Reduce padding on smaller screens */
+        font-size: 95%;         /* Slightly smaller base font */
+    }
+
+    header h1 {
+        font-size: 2em;
+    }
+
+    article h2 {
+        font-size: 1.5em;
+    }
+}
+
+/* --- End of style.css --- */
