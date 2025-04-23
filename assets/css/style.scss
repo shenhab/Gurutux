@@ -2,25 +2,23 @@
 
 /* Basic Reset & Body Defaults */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* Sensible system font stack */
-    line-height: 1.6;           /* Readability */
-    margin: 0 auto;             /* Center content horizontally */
-    padding: 1em;               /* Padding around content */
-    max-width: 800px;           /* Prevent excessive line length on wide screens */
-    background-color: #fdfdfd;  /* Light background */
-    color: #333;                /* Default text color */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; /* System font stack */
+    line-height: 1.6;
+    margin: 0 auto;
+    padding: 1em;
+    max-width: 800px;
+    background-color: #fdfdfd;
+    color: #333;
 }
 
 /* Basic Link Styling */
 a {
-    color: #0056b3;             /* Standard link blue */
-    text-decoration: none;      /* Cleaner look */
+    color: #0056b3;
+    text-decoration: none;
 }
-
-a:hover,
-a:focus {
-    text-decoration: underline; /* Clear indication on interaction */
-    color: #003d80;             /* Darken link on hover/focus */
+a:hover, a:focus {
+    text-decoration: underline;
+    color: #003d80;
 }
 
 /* Header */
@@ -28,54 +26,63 @@ header {
     border-bottom: 2px solid #eee;
     margin-bottom: 2em;
     padding-bottom: 1em;
+    text-align: center; /* Center header content */
 }
-
 header h1 {
     margin: 0;
-    font-size: 2.5em;           /* Prominent site title */
+    font-size: 2.5em;
     color: #111;
 }
+header h1 a { /* Ensure header link inherits base styles */
+    color: inherit; 
+    text-decoration: none;
+}
+header p { /* Site description */
+    margin: 0.5em 0 0 0;
+    color: #555;
+    font-size: 1.1em;
+}
+
 
 /* Main Content Area */
 main {
-    /* Main content area requires minimal specific styling */
-    /* Spacing is handled by elements within it, like <article> */
+    /* No specific styles needed here by default */
 }
 
 /* Article Styling */
 article {
-    border-bottom: 1px solid #eee; /* Separator between posts */
-    margin-bottom: 2.5em;       /* Vertical space between posts */
-    padding-bottom: 1.5em;      /* Padding within article before separator */
+    border-bottom: 1px solid #eee;
+    margin-bottom: 2.5em;
+    padding-bottom: 1.5em;
+}
+article:last-of-type { /* Remove border from last article */
+    border-bottom: none;
 }
 
 article h2 {
-    margin-top: 0;              /* Remove default top margin */
-    margin-bottom: 0.2em;       /* Space below heading */
-    font-size: 1.8em;           /* Post title size */
+    margin-top: 0;
+    margin-bottom: 0.2em;
+    font-size: 1.8em;
 }
-
 article h2 a {
-    color: #222;                /* Darker color for titles */
+    color: #222;
     text-decoration: none;
 }
-
-article h2 a:hover,
-article h2 a:focus {
-    color: #0056b3;             /* Change color on hover/focus */
+article h2 a:hover, article h2 a:focus {
+    color: #0056b3;
     text-decoration: underline;
 }
 
 article time {
-    color: #666;                /* Subdued color for date */
+    color: #666;
     font-size: 0.9em;
-    display: block;             /* Ensure it takes its own line */
-    margin-bottom: 1em;         /* Space below date */
+    display: block;
+    margin-bottom: 1em;
 }
 
-/* Excerpt Container (if specific styling needed) */
+/* Excerpt Container */
 article div {
-    margin-bottom: 1em;         /* Space between excerpt and 'Read More' */
+    margin-bottom: 1em;
 }
 
 /* 'Read More' Link */
@@ -96,17 +103,17 @@ footer {
 /* Basic Responsiveness */
 @media (max-width: 600px) {
     body {
-        padding: 0.5em;         /* Reduce padding on smaller screens */
-        font-size: 95%;         /* Slightly smaller base font */
+        padding: 0.5em;
+        font-size: 95%;
     }
-
     header h1 {
         font-size: 2em;
     }
-
+    header p {
+        font-size: 1em;
+    }
     article h2 {
         font-size: 1.5em;
     }
 }
-
 /* --- End of style.css --- */
