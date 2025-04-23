@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page.title | default: site.title | escape }}</title>
+    <meta name="description" content="{{ page.excerpt | default: site.description | strip_html | normalize_whitespace | truncate: 160 | escape }}">
+    
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    
+    </head>
+<body>
+
+    <header>
+        <h1><a href="{{ '/' | relative_url }}">{{ site.title | escape }}</a></h1>
+        {% if site.description %}
+            <p>{{ site.description | escape }}</p>
+        {% endif %}
+        {# Optional: Navigation include #}
+        {# {% include navigation.html %} #}
+    </header>
+
+    <main>
+        {{ content }} {# Page content (from index.html) goes here #}
+    </main>
+
+    <footer>
+        <p>&copy; {{ site.time | date: '%Y' }} {{ site.title | escape }}.</p> 
+        {# Optional: Add other footer links #}
+    </footer>
+
+</body>
+</html>
