@@ -10,7 +10,7 @@ description: "Technical articles and analysis on software engineering and system
 markdown: GFM
 # google_analytics: UA-XXXXX-Y # Uncomment and replace if you use GA
 
-theme: jekyll-theme-hacker 
+# theme: jekyll-theme-hacker 
 
 # Optional: Add theme-specific configuration variables here if jekyll-theme-hacker supports them. Check its documentation.
 
