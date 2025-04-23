@@ -9,11 +9,3 @@ description: "Technical articles and analysis on software engineering and system
 
 markdown: GFM
 # google_analytics: UA-XXXXX-Y # Uncomment and replace if you use GA
-
-# theme: jekyll-theme-hacker 
-
-# Optional: Add theme-specific configuration variables here if jekyll-theme-hacker supports them. Check its documentation.
-
-# Plugins often used with Jekyll/GitHub Pages (add jekyll-feed if you want an RSS feed)
-# plugins:
-#   - jekyll-feed
