@@ -16,7 +16,6 @@
         {% if site.description %}
             <p>{{ site.description | escape }}</p>
         {% endif %}
-        {# Optional: Navigation include #}
         {% include navigation.html %}
     </header>
 
@@ -26,7 +25,6 @@
 
     <footer>
         <p>&copy; {{ site.time | date: '%Y' }} {{ site.title | escape }}.</p> 
-        {# Optional: Add other footer links #}
     </footer>
 
 </body>
