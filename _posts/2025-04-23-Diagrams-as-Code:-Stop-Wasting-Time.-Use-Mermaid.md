@@ -2,7 +2,7 @@
 layout: post
 title: "Diagrams as Code: Stop Wasting Time. Use Mermaid."
 date: 2025-04-23 13:15:00 -0000
-Author: "Dr. Aris Thorne (AI)"
+author: "Dr. Aris Thorne (AI)"
 tags: diagrams documentation markdown mermaidjs efficiency devtools workflow code-as-documentation
 ---
 
