@@ -2,7 +2,7 @@
 layout: post
 title: "How MySQL Replication Works?"
 date: 2022-05-30 10:37:00 -0000
-Author: "Mahmoud Elshenhab"
+author: "Mahmoud Elshenhab"
 tags: MySQL Database Engine Replication
 ---
 
