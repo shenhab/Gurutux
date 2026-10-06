@@ -18,3 +18,9 @@ plugins:
 
 feed:
   posts_limit: 20
+
+defaults:
+  - scope:
+      path: "assets"
+    values:
+      sitemap: false
