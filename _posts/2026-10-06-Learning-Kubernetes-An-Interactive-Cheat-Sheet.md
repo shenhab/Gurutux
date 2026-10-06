@@ -6,7 +6,7 @@ author: "Mahmoud Elshenhab"
 tags: kubernetes k8s containers sre cloud architecture cheatsheet learning
 ---
 
-I have been learning Kubernetes this year. The YAML was never the hard part. The hard part was keeping all the moving pieces straight in my head. Which part talks to which? Who remembers the state? What really happens between typing `kubectl apply` and a container running on a machine? To answer that for myself, I built a visual cheat sheet. This post walks through it, one piece at a time, in plain language.
+I started learning Kubernetes tonight. I did not begin with the YAML. I went straight to the architecture, because I wanted to understand what the pieces are and how they talk to each other before writing a single manifest. This post is a full explanation of the architecture in the diagram below, one component at a time, in plain language.
 
 Hover over or click any box in the diagram. The panel under it tells you what that piece does and lights up the paths it uses.
 
@@ -36,53 +36,61 @@ Hover over or click any box in the diagram. The panel under it tells you what th
 
 ## How to read the diagram
 
-There are three areas.
+The diagram has three areas.
 
-- **The client, on the left.** That is you, running `kubectl`. It sits outside the cluster.
+- **The client, on the left.** This is `kubectl`, the command-line tool. It sits outside the cluster.
 - **The control plane, top box.** This is the part that *decides* what should run. It never runs your application.
 - **The worker node, bottom box.** This is the part that *does the work*. Your containers live here.
 
-A real cluster has one control plane (usually spread over a few machines for safety) and as many worker nodes as you need. The diagram shows one node to keep things readable. Every node looks the same.
+A real cluster has one control plane, usually spread across several machines so it survives failures, and as many worker nodes as the workload needs. The diagram shows one node to keep things readable. Every node runs the same set of agents.
 
-## Start with you: kubectl
+The arrows show who talks to whom. Every single arrow either starts or ends at the api-server. That is the most important thing to notice, and the rest of this post explains why.
 
-`kubectl` is a command-line program on your laptop, or in your CI pipeline. It is not part of Kubernetes itself. You could delete it and the cluster would carry on running exactly as before.
+## The client: kubectl
 
-It does two things. It sends the cluster your YAML files, which describe what you *want* to exist. And it asks the cluster questions, like "what Pods are running?" Both go to the same place: the api-server.
+`kubectl` is a program that runs on a laptop or in a CI pipeline. It is not part of the cluster. If you removed it, the cluster would keep running exactly as before.
 
-That is why it sits outside the box. It is a visitor. It knocks on the front door and leaves.
+It does two things. It sends the cluster a description of what you *want* to exist, written in YAML. And it asks the cluster questions, such as which Pods are running. Both go to the same place: the api-server.
+
+That is why it sits outside the box. It is a visitor. It knocks on the front door, hands over a request, and leaves.
 
 ## The control plane: the part that decides
 
-The control plane has four pieces. Each one has a single, narrow job.
+The control plane has four components. Each one has a single, narrow job.
 
 ### api-server: the front door
 
-Everything goes through the api-server. Every command from `kubectl`, every decision from the scheduler, every status report from a node. There is no back door.
+Everything goes through the api-server. Every request from `kubectl`, every decision from the scheduler, every status report from a node. There is no other way in.
 
-When a request arrives, the api-server checks who you are, checks whether you are allowed to do that, checks that the YAML is valid, and then saves it. That is the whole job. It does not make decisions about where things run. It is a very strict receptionist with a very good filing system.
+When a request arrives, the api-server checks who sent it, checks whether they are allowed to do that, checks that the content is valid, and then saves it. That is the whole job. It does not decide where things run. It is a strict receptionist with a very good filing system.
+
+The api-server holds no state of its own. Everything it knows is in etcd. This matters for scaling, and we come back to it below.
 
 ### etcd: the memory
 
-etcd is a small, reliable database. It stores the full state of the cluster: every Deployment, every Pod, every Secret, every ConfigMap. If something is not in etcd, the cluster does not know about it.
+etcd is a small, reliable key-value database. It stores the full state of the cluster: every Deployment, every Pod, every Secret, every ConfigMap, and the current status of each one. If something is not in etcd, the cluster does not know about it.
 
-Only the api-server is allowed to read from or write to etcd. Nothing else touches it. This is the single most important rule in the whole design, because it means there is exactly one copy of the truth and exactly one gatekeeper.
+Only the api-server is allowed to read from or write to etcd. No other component touches it. This means there is exactly one copy of the truth and exactly one gatekeeper in front of it.
 
-If you back up only one thing in a cluster, back up etcd.
+etcd runs as a group of members, usually three or five, and uses a consensus protocol called Raft. A write is only accepted once a majority of the members have agreed to it. That majority is called the **quorum**. With three members, two must agree. With five, three must agree. This is why etcd clusters use an odd number of members: an even number gives you no extra safety, only an extra machine that can fail.
+
+If etcd loses quorum, it stops accepting writes. The api-server can then no longer save anything, so the cluster freezes. Pods that are already running keep running, because the kubelets on the nodes do not need etcd to keep a container alive. But nothing new can be created, scheduled, or changed until quorum comes back.
+
+etcd is very sensitive to slow disks and slow networks, because every write has to be confirmed by a majority before it returns. At hyperscale, etcd is kept on its own dedicated machines, separate from the api-servers. If etcd shares a machine with a busy api-server, the two compete for disk and CPU, etcd slows down, and every api-server waiting on it freezes with it. Keeping etcd alone keeps the api-servers responsive.
 
 ### controller-manager: the fixer
 
-Kubernetes works by comparing two things. What you *asked for*, and what is *actually happening*. The controller-manager is a bundle of small loops that do this comparison over and over, forever.
+Kubernetes works by comparing two things: what you *asked for*, and what is *actually happening*. The controller-manager is a bundle of small loops that run this comparison over and over, forever.
 
-Take a simple example. You asked for three copies of a web server. One of them crashes. A controller notices that three were wanted and only two exist, and asks the api-server to create a third. It does not restart the old one. It does not panic. It just closes the gap.
+A simple example. You asked for three copies of a web server. One of them crashes. A controller notices that three were wanted and only two exist, and asks the api-server to create a third. It does not restart the old one. It does not alarm anyone. It just closes the gap.
 
-Each kind of object has its own controller. There is one for Deployments, one for ReplicaSets, one for Nodes, one for Jobs, and so on. They all follow the same pattern: watch, compare, fix.
+Each kind of object has its own controller. There is one for Deployments, one for ReplicaSets, one for Nodes, one for Jobs, and so on. They all follow the same pattern: watch the api-server, compare, fix.
 
 ### scheduler: the matchmaker
 
 When a new Pod is created, it has no home yet. The scheduler's job is to pick one.
 
-It looks at every node and throws out the ones that cannot run the Pod. Maybe the node does not have enough memory, or it is marked as off-limits. Then it scores the remaining nodes and picks the best fit. Finally, it writes the chosen node name onto the Pod, through the api-server.
+It looks at every node and removes the ones that cannot run the Pod. Maybe the node does not have enough free memory, or it has been marked as off-limits. Then it scores the remaining nodes and picks the best fit. Finally, it writes the chosen node's name onto the Pod, through the api-server.
 
 That is where its job ends. The scheduler never starts a container. It only writes down a decision.
 
@@ -94,17 +102,17 @@ Every worker node runs the same small set of programs.
 
 The kubelet is the Kubernetes agent on each node. It watches the api-server for Pods that have been assigned to *its* node. When it sees one, it makes sure the containers in that Pod are running and healthy. If a container dies, the kubelet restarts it. It runs the health checks. It reports the Pod's status back to the api-server.
 
-If you have spent years looking after services on individual servers, this is the piece you will recognise. It is the init system and the monitoring agent rolled into one, and it takes orders only from the api-server.
+The kubelet takes orders only from the api-server, and it never talks to etcd, the scheduler, or the controllers directly.
 
 ### container runtime: the engine
 
-The kubelet does not run containers itself. It asks the container runtime to do it. On most clusters today that is containerd, or CRI-O. The runtime pulls the image, creates the container, and starts the process.
+The kubelet does not run containers itself. It asks the container runtime to do it. On most clusters today that is containerd or CRI-O. The runtime pulls the image, creates the container, and starts the process.
 
-Kubernetes talks to the runtime over a standard interface, so it does not care which engine you use.
+The kubelet talks to the runtime over a standard interface called the Container Runtime Interface, so Kubernetes does not care which engine is underneath.
 
 ### kube-proxy and the CNI plugin: the network
 
-Two pieces handle networking, and they are often shown together.
+Two pieces handle networking, and the diagram shows them together.
 
 The CNI plugin (Container Network Interface) gives each Pod its own IP address and connects it to the cluster network. Pods on different nodes can reach each other directly.
 
@@ -114,29 +122,35 @@ kube-proxy handles Services. A Service is a stable virtual address that stands i
 
 A Pod is the smallest thing Kubernetes will run. It holds one or more containers that share an IP address and can share storage. Most of the time a Pod holds exactly one container.
 
-You will rarely create a Pod by hand. You create a Deployment. The Deployment creates a ReplicaSet. The ReplicaSet creates the Pods. The reason for the layers is that each one handles a different job: the Deployment handles rolling updates, and the ReplicaSet handles keeping the right number of copies alive.
+Pods are rarely created by hand. You create a Deployment. The Deployment creates a ReplicaSet. The ReplicaSet creates the Pods. Each layer has a different job: the Deployment handles rolling updates, and the ReplicaSet handles keeping the right number of copies alive.
 
 ## Two rules that explain almost everything
 
-Once I understood these two rules, the diagram stopped looking like a pile of daemons and started looking like one simple system.
-
-**Rule one: everything goes through the api-server.** Every arrow in the diagram touches it. No component talks to another component directly. They all talk to the api-server, and the api-server talks to etcd.
+**Rule one: everything goes through the api-server.** Every arrow in the diagram touches it. No component talks to another component directly. They all talk to the api-server, and only the api-server talks to etcd.
 
 **Rule two: nobody pushes, everybody watches.** The control plane never reaches out to a node and says "run this". Instead, each piece watches the api-server for changes that concern it, and acts on what it sees. The scheduler watches for unassigned Pods. The kubelet watches for Pods assigned to its node. The controllers watch for gaps between desired and actual state.
 
-This second rule is why Kubernetes is so calm under failure. If a node loses contact with the control plane, its Pods keep running. If a controller restarts, it just starts watching again and picks up where it left off. There is no fragile chain of commands to break.
+The second rule is why Kubernetes stays calm under failure. If a node loses contact with the control plane, its Pods keep running. If a controller restarts, it simply starts watching again and picks up where it left off. There is no fragile chain of commands to break.
+
+## Scaling the control plane
+
+Rule one has a consequence. Because the api-server keeps no state of its own, you can run as many copies of it as you like, behind a load balancer. Each copy reads and writes the same etcd. Clients cannot tell them apart.
+
+At hyperscale, this goes one step further: Kubernetes can be hosted on Kubernetes. The control plane components of a cluster, including its api-servers, run as ordinary Pods on another, underlying cluster. The underlying cluster then treats the api-servers like any other workload. Need more api-server capacity? Scale the Deployment. Lose a machine? The controllers replace the Pod. This is how the large managed Kubernetes services run thousands of customer control planes, and it is why their api-servers can scale seamlessly.
+
+etcd is the exception. It is stateful, it depends on quorum, and it is sensitive to latency, so it does not scale by adding copies the way the api-server does. That is why, at scale, it is run alone on dedicated machines and treated with more care than everything else in the control plane.
 
 ## What happens when you run kubectl apply
 
-Here is the full sequence for a Deployment with one replica. This is the walk-through I had to trace by hand before the diagram made sense.
+Here is the full sequence for a Deployment with one replica, following the arrows in the diagram.
 
-1. `kubectl` reads your YAML and sends it to the api-server.
-2. The api-server checks your identity and permissions, validates the YAML, and saves the Deployment in etcd.
+1. `kubectl` reads the YAML and sends it to the api-server.
+2. The api-server checks identity and permissions, validates the content, and saves the Deployment in etcd. etcd confirms the write once a quorum of its members has it.
 3. The Deployment controller sees a new Deployment and creates a ReplicaSet. The ReplicaSet controller sees that and creates a Pod. Both go through the api-server and both are saved in etcd. The Pod has no node yet.
 4. The scheduler sees a Pod with no node, picks the best one, and writes that node's name onto the Pod.
 5. The kubelet on that node sees a Pod assigned to it. It asks the container runtime to pull the image and start the container.
 6. The CNI plugin gives the Pod an IP address. kube-proxy updates the routing rules so a Service can reach it.
-7. The kubelet reports back that the Pod is running. From now on it keeps checking, and restarts the container if it fails.
+7. The kubelet reports back that the Pod is running. From then on it keeps checking, and restarts the container if it fails.
 
 Seven steps, five different programs, and not one of them called another directly. They all went through the front door.
 
@@ -144,9 +158,9 @@ Seven steps, five different programs, and not one of them called another directl
 
 | Piece | Lives in | One-line job |
 | --- | --- | --- |
-| kubectl | Your machine | Sends your wishes to the api-server |
-| api-server | Control plane | The only door in and out. Checks and saves everything |
-| etcd | Control plane | Remembers the whole cluster state |
+| kubectl | Outside the cluster | Sends requests to the api-server |
+| api-server | Control plane | The only door in and out. Checks and saves everything. Stateless, so it scales out |
+| etcd | Control plane | Remembers the whole cluster state. Needs quorum. Kept on its own machines at scale |
 | controller-manager | Control plane | Spots gaps between wanted and actual, and fixes them |
 | scheduler | Control plane | Picks a node for each new Pod |
 | kubelet | Worker node | Runs and watches the Pods on its node |
@@ -154,8 +168,8 @@ Seven steps, five different programs, and not one of them called another directl
 | kube-proxy / CNI | Worker node | Gives Pods addresses and routes traffic to them |
 | Pod | Worker node | Your application, wrapped up |
 
-## What the cheat sheet leaves out
+## What the diagram leaves out
 
-This is the core architecture only. Services, Ingress, persistent storage, ConfigMaps, Secrets, RBAC and namespaces all sit on top of this. The good news is that they follow the same pattern every time: an object saved in etcd, a controller watching it, and the api-server in the middle. Once the core model is clear, the rest is details.
+This is the core architecture only. Services, Ingress, persistent storage, ConfigMaps, Secrets, RBAC and namespaces all sit on top of it. They follow the same pattern every time: an object saved in etcd, a controller watching it, and the api-server in the middle.
 
-I will extend the diagram as I learn more. If you spot something wrong or misleading, I would genuinely like to hear it.
+I am still learning. This is the first piece.
