@@ -21,47 +21,59 @@
     --bg: #f8fafc;
     --text: #0f172a;
     --muted: #475569;
+    --faint: #64748b;
     --box: #ffffff;
     --box-border: #e2e8f0;
     --title: #0369a1;
-    --item: #f1f5f9;
-    --item-text: #334155;
-    --active-bg: #e0f2fe;
-    --active-text: #0c4a6e;
-    --active-border: #0ea5e9;
+    --card: #f1f5f9;
+    --card-border: #e2e8f0;
+    --code-bg: #e2e8f0;
+    --on-bg: #e0f2fe;
+    --on-border: #0ea5e9;
     --hl-bg: #d1fae5;
     --hl-text: #065f46;
     --hl-border: #10b981;
+    --fresh: #fef3c7;
     --btn: #0284c7;
     --btn-hover: #0369a1;
-    --btn-off-bg: #e2e8f0;
-    --btn-off-text: #94a3b8;
+    --btn-done: #bae6fd;
+    --btn-done-text: #0c4a6e;
     --reset: #dc2626;
-    --badge: #0284c7;
     --shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+    --t-api: #0284c7;
+    --t-watch: #7c3aed;
+    --t-etcd: #059669;
+    --t-local: #64748b;
+    --t-packet: #ea580c;
   }
   :root[data-theme="dark"] {
     --bg: #0f172a;
     --text: #f8fafc;
     --muted: #94a3b8;
+    --faint: #94a3b8;
     --box: #1e293b;
     --box-border: #334155;
     --title: #38bdf8;
-    --item: #334155;
-    --item-text: #e2e8f0;
-    --active-bg: #0c4a6e;
-    --active-text: #e0f2fe;
-    --active-border: #0ea5e9;
+    --card: #273449;
+    --card-border: #334155;
+    --code-bg: #0f172a;
+    --on-bg: #0c4a6e;
+    --on-border: #0ea5e9;
     --hl-bg: #065f46;
     --hl-text: #a7f3d0;
     --hl-border: #10b981;
+    --fresh: #713f12;
     --btn: #0ea5e9;
     --btn-hover: #38bdf8;
-    --btn-off-bg: #334155;
-    --btn-off-text: #64748b;
+    --btn-done: #0c4a6e;
+    --btn-done-text: #e0f2fe;
     --reset: #ef4444;
-    --badge: #0284c7;
     --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    --t-api: #38bdf8;
+    --t-watch: #a78bfa;
+    --t-etcd: #34d399;
+    --t-local: #94a3b8;
+    --t-packet: #fb923c;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
@@ -70,251 +82,638 @@
     background: var(--bg);
     color: var(--text);
   }
-  .widget-container {
-    padding: 24px 16px 28px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  h2 { margin: 0 0 4px; font-size: 20px; text-align: center; }
-  .explanation {
-    margin: 12px 0 22px;
-    max-width: 800px;
-    min-height: 72px;
-    text-align: center;
-    font-size: 15px;
-    color: var(--muted);
-    line-height: 1.5;
-  }
-  .explanation strong { color: var(--text); }
-  .controls {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-    max-width: 900px;
-    margin-bottom: 28px;
-  }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+  .widget-container { padding: 24px 16px 28px; max-width: 1000px; margin: 0 auto; }
+  h2 { margin: 0 0 6px; font-size: 20px; text-align: center; }
+  .sub { margin: 0 auto 18px; max-width: 760px; text-align: center; color: var(--muted); font-size: 14px; line-height: 1.5; }
+
+  /* ---- Controls ---- */
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: 18px; }
   button {
-    background: var(--btn);
-    color: #ffffff;
-    border: none;
-    padding: 10px 14px;
-    font-size: 14px;
-    font-weight: 700;
-    border-radius: 6px;
-    cursor: pointer;
+    background: var(--btn); color: #ffffff; border: none; padding: 9px 13px;
+    font-size: 14px; font-weight: 700; border-radius: 6px; cursor: pointer;
     transition: background 0.2s, transform 0.2s;
   }
-  button:hover:not(:disabled) { background: var(--btn-hover); transform: translateY(-2px); }
-  button:disabled { background: var(--btn-off-bg); color: var(--btn-off-text); cursor: not-allowed; }
+  button:hover { background: var(--btn-hover); transform: translateY(-1px); }
+  button.done { background: var(--btn-done); color: var(--btn-done-text); }
+  button.current { outline: 3px solid var(--hl-border); outline-offset: 2px; }
+  button.secondary { background: transparent; color: var(--btn); border: 2px solid var(--btn); padding: 7px 11px; }
+  button.secondary:hover { background: var(--on-bg); }
   button.reset { background: var(--reset); }
-  .container {
-    display: flex;
-    gap: 32px;
-    width: 100%;
-    max-width: 900px;
-    justify-content: center;
-  }
-  .box {
-    background: var(--box);
-    border: 2px solid var(--box-border);
-    border-radius: 12px;
-    padding: 20px;
-    flex: 1 1 0;
-    max-width: 400px;
-    box-shadow: var(--shadow);
-  }
-  .box-title {
-    font-weight: 800;
-    color: var(--title);
-    margin-bottom: 16px;
-    border-bottom: 2px solid var(--box-border);
-    padding-bottom: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 14px;
-  }
-  .item {
-    background: var(--item);
-    color: var(--item-text);
-    padding: 12px 14px;
-    margin-bottom: 12px;
-    border-radius: 6px;
-    opacity: 0.35;
-    transition: all 0.4s ease;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 13px;
-    line-height: 1.45;
-    border: 1px solid transparent;
-  }
-  .item:last-child { margin-bottom: 0; }
-  .item.active {
-    opacity: 1;
-    background: var(--active-bg);
-    color: var(--active-text);
-    border-color: var(--active-border);
-    transform: scale(1.02);
-  }
-  .item.highlight {
-    opacity: 1;
-    background: var(--hl-bg);
-    color: var(--hl-text);
-    border-color: var(--hl-border);
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
-    transform: scale(1.04);
-  }
-  .badge {
-    display: inline-block;
-    background: var(--badge);
-    color: #ffffff;
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    margin-bottom: 5px;
-    font-family: system-ui, sans-serif;
-    font-weight: 700;
-  }
-  @media (max-width: 720px) {
-    .container { flex-direction: column; gap: 20px; align-items: stretch; }
-    .box { max-width: none; }
-    .explanation { min-height: 96px; }
+
+  /* ---- Step panel ---- */
+  .panel { background: var(--box); border: 2px solid var(--box-border); border-radius: 12px; padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow); }
+  .panel h3 { margin: 0 0 4px; font-size: 17px; }
+  .panel .summary { margin: 0 0 12px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .acts { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .act { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 8px; border: 1px solid transparent; opacity: 0.35; transition: opacity 0.3s, background 0.3s, border-color 0.3s; }
+  .act.done { opacity: 1; }
+  .act.now { opacity: 1; background: var(--on-bg); border-color: var(--on-border); }
+  .num { flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%; color: #ffffff; font-size: 12px; font-weight: 800; display: flex; align-items: center; justify-content: center; margin-top: 1px; }
+  .act-body { min-width: 0; flex: 1; }
+  .act-head { display: flex; flex-wrap: wrap; gap: 6px 8px; align-items: center; font-size: 14px; }
+  .chip { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; border: 1.5px solid currentColor; white-space: nowrap; }
+  .act code { display: block; margin: 5px 0 3px; padding: 4px 8px; background: var(--code-bg); border-radius: 5px; font-size: 12.5px; overflow-wrap: anywhere; }
+  .act p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.45; }
+  .intro-list { margin: 0; padding-left: 18px; font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .intro-list b { color: var(--text); }
+
+  .bg-api { background: var(--t-api); } .c-api { color: var(--t-api); }
+  .bg-watch { background: var(--t-watch); } .c-watch { color: var(--t-watch); }
+  .bg-etcd { background: var(--t-etcd); } .c-etcd { color: var(--t-etcd); }
+  .bg-local { background: var(--t-local); } .c-local { color: var(--t-local); }
+  .bg-packet { background: var(--t-packet); } .c-packet { color: var(--t-packet); }
+
+  /* ---- Legend ---- */
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center; font-size: 12.5px; color: var(--muted); margin: 0 0 14px; }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend svg { width: 30px; height: 10px; }
+
+  /* ---- Diagram ---- */
+  .stage { position: relative; display: grid; grid-template-columns: 1fr 1fr; gap: 64px; padding: 0 30px 0 34px; }
+  .col { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .box { background: var(--box); border: 2px solid var(--box-border); border-radius: 12px; padding: 14px; box-shadow: var(--shadow); position: relative; transition: opacity 0.4s; }
+  .box-title { font-weight: 800; color: var(--title); margin: 0 0 4px; text-transform: uppercase; letter-spacing: 0.05em; font-size: 13px; }
+  .box-desc { margin: 0 0 12px; font-size: 12.5px; color: var(--faint); line-height: 1.4; border-bottom: 2px solid var(--box-border); padding-bottom: 10px; }
+  .box .cards { display: flex; flex-direction: column; gap: 12px; }
+  .bypass-note { display: none; position: absolute; inset: 0; align-items: center; justify-content: center; text-align: center; padding: 20px; font-weight: 800; font-size: 15px; color: var(--text); z-index: 2; }
+  .bypass-note span { background: var(--box); border: 2px dashed var(--muted); border-radius: 8px; padding: 10px 14px; }
+  .bypassed .box.cp > *:not(.bypass-note), .bypassed .box.client-box > *:not(.bypass-note) { opacity: 0.25; }
+  .bypassed .bypass-note { display: flex; }
+
+  .card { background: var(--card); border: 1.5px solid var(--card-border); border-radius: 8px; padding: 10px 12px; opacity: 0.6; transition: all 0.35s ease; }
+  .card.on { opacity: 1; }
+  .card.acting { opacity: 1; background: var(--on-bg); border-color: var(--on-border); box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.25); }
+  .card.target { opacity: 1; border-color: var(--on-border); }
+  .card.hl { opacity: 1; background: var(--hl-bg); border-color: var(--hl-border); box-shadow: 0 0 14px rgba(16, 185, 129, 0.4); }
+  .card.hl .state { color: var(--hl-text); }
+  .card.dim { opacity: 0.3; }
+  .card-head { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+  .name { font-weight: 800; font-size: 14px; }
+  .where { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--faint); }
+  .desc { margin: 3px 0 7px; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+  .state { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 12px; line-height: 1.5; background: var(--code-bg); border-radius: 5px; padding: 6px 8px; overflow-wrap: anywhere; }
+  .state .lbl { font-family: system-ui, sans-serif; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; color: var(--faint); display: block; }
+  .state em { color: var(--faint); }
+  .key { padding: 3px 0; border-top: 1px dashed var(--card-border); }
+  .key:first-of-type { border-top: none; }
+  .key b { display: block; }
+  .key.fresh { background: var(--fresh); border-radius: 4px; padding: 3px 4px; }
+  .pods { display: flex; flex-direction: column; gap: 12px; }
+
+  /* ---- Wires ---- */
+  svg.wires { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; z-index: 3; }
+  .wire { fill: none; stroke-width: 2.5; opacity: 0; }
+  .wire.fade { transition: opacity 0.4s; }
+  .wire.show { opacity: 1; }
+  .wire.watch, .wire.resp { stroke-dasharray: 7 5; }
+  .s-api { stroke: var(--t-api); } .f-api { fill: var(--t-api); }
+  .s-watch { stroke: var(--t-watch); } .f-watch { fill: var(--t-watch); }
+  .s-etcd { stroke: var(--t-etcd); } .f-etcd { fill: var(--t-etcd); }
+  .s-local { stroke: var(--t-local); } .f-local { fill: var(--t-local); }
+  .s-packet { stroke: var(--t-packet); } .f-packet { fill: var(--t-packet); }
+  .badge-num text { fill: #ffffff; font: 800 11px system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; }
+  .badge-num { opacity: 0; transition: opacity 0.4s; }
+  .badge-num.show { opacity: 1; }
+
+  @media (max-width: 760px) {
+    .stage { grid-template-columns: 1fr; gap: 16px; padding: 0 30px 0 0; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .item, button { transition: none; }
-    .item.active, .item.highlight, button:hover:not(:disabled) { transform: none; }
+    .card, .wire, .act, button, .badge-num { transition: none; }
+    button:hover { transform: none; }
   }
 </style>
 </head>
 <body>
 <div class="widget-container">
+  <h2>How a Kubernetes Service reaches a Pod</h2>
+  <p class="sub">Each step shows who acts, the exact call it makes, and where the result is stored. Numbered arrows in the diagram match the numbered lines in the step panel.</p>
 
-  <h2>Kubernetes Traffic Routing</h2>
-  <div class="explanation" id="exp-text" aria-live="polite"></div>
-
-  <div class="controls">
-    <button id="btn1" onclick="step1()">1. Start Pods</button>
-    <button id="btn2" onclick="step2()" disabled>2. Apply Service</button>
-    <button id="btn3" onclick="step3()" disabled>3. Controller Reconciles</button>
-    <button id="btn4" onclick="step4()" disabled>4. kube-proxy Translates</button>
-    <button id="btn5" onclick="step5()" disabled>5. Send Client Traffic</button>
-    <button id="btnReset" class="reset" onclick="reset()">Reset</button>
+  <div class="controls" id="controls">
+    <button data-step="1">1. Start Pods</button>
+    <button data-step="2">2. Apply Service</button>
+    <button data-step="3">3. Controller reconciles</button>
+    <button data-step="4">4. kube-proxy programs kernel</button>
+    <button data-step="5">5. Send client traffic</button>
+    <button class="secondary" id="btnReplay" title="Play the current step again">Replay step</button>
+    <button class="reset" id="btnReset">Reset</button>
   </div>
 
-  <div class="container">
-    <div class="box">
-      <div class="box-title">Control Plane (API server + etcd)</div>
+  <div class="panel" id="panel" aria-live="polite"></div>
 
-      <div class="item" id="cp-svc">
-        <span class="badge">Virtual Object</span><br>
-        <strong>Service:</strong> backend-svc<br>
-        <strong>ClusterIP:</strong> 10.96.0.50<br>
-        <strong>Selector:</strong> app=backend
+  <div class="legend" aria-label="Arrow legend">
+    <span><svg viewBox="0 0 30 10"><line x1="0" y1="5" x2="30" y2="5" class="s-api" stroke-width="2.5"/></svg>API request (HTTPS)</span>
+    <span><svg viewBox="0 0 30 10"><line x1="0" y1="5" x2="30" y2="5" class="s-api" stroke-width="2.5" stroke-dasharray="7 5"/></svg>API response</span>
+    <span><svg viewBox="0 0 30 10"><line x1="0" y1="5" x2="30" y2="5" class="s-watch" stroke-width="2.5" stroke-dasharray="7 5"/></svg>Watch event (pushed down an open stream)</span>
+    <span><svg viewBox="0 0 30 10"><line x1="0" y1="5" x2="30" y2="5" class="s-etcd" stroke-width="2.5"/></svg>etcd write (gRPC)</span>
+    <span><svg viewBox="0 0 30 10"><line x1="0" y1="5" x2="30" y2="5" class="s-local" stroke-width="2.5"/></svg>Local, inside the node</span>
+    <span><svg viewBox="0 0 30 10"><line x1="0" y1="5" x2="30" y2="5" class="s-packet" stroke-width="2.5"/></svg>Network packet</span>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="col" id="col-left">
+      <div class="box client-box">
+        <div class="bypass-note"><span>Not involved in traffic</span></div>
+        <div class="box-title">Outside the cluster</div>
+        <div class="cards">
+          <div class="card" id="c-kubectl">
+            <div class="card-head"><span class="name">kubectl</span><span class="where">your laptop or CI</span></div>
+            <div class="desc">Command-line client. Sends requests to the API server over HTTPS. It is not part of the cluster.</div>
+            <div class="state" id="s-kubectl"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="item" id="cp-cm">
-        <span class="badge">Controller Manager</span><br>
-        EndpointSlice Controller<br>
-        <em>Watching Services and Pods...</em>
+      <div class="box cp">
+        <div class="bypass-note"><span>Control plane: not involved in traffic.<br>It only stores and serves records.</span></div>
+        <div class="box-title">Control plane</div>
+        <div class="box-desc">Decides and records. Holds the desired state of the cluster. Never carries your application's traffic.</div>
+        <div class="cards">
+          <div class="card" id="c-api">
+            <div class="card-head"><span class="name">kube-apiserver</span><span class="where">control plane</span></div>
+            <div class="desc">The only door into the cluster. Checks every request, reads and writes etcd, and streams changes to everyone watching.</div>
+            <div class="state" id="s-api"></div>
+          </div>
+          <div class="card" id="c-etcd">
+            <div class="card-head"><span class="name">etcd</span><span class="where">control plane database</span></div>
+            <div class="desc">Key-value store holding every object. Only the API server talks to it. A Service or an EndpointSlice is just a record here.</div>
+            <div class="state" id="s-etcd"></div>
+          </div>
+          <div class="card" id="c-ctrl">
+            <div class="card-head"><span class="name">EndpointSlice controller</span><span class="where">inside kube-controller-manager</span></div>
+            <div class="desc">A loop that watches Services and Pods through the API server, and keeps an EndpointSlice listing each Service's ready Pods.</div>
+            <div class="state" id="s-ctrl"></div>
+          </div>
+        </div>
       </div>
-
-      <div class="item" id="cp-ep"></div>
     </div>
 
-    <div class="box">
-      <div class="box-title">Worker Node</div>
-
-      <div class="item" id="wn-proxy">
-        <span class="badge">Node Agent</span><br>
-        <strong>kube-proxy</strong><br>
-        <em>Watching the API server (HTTPS watch)...</em>
-      </div>
-
-      <div class="item" id="wn-kernel"></div>
-
-      <div class="item" id="wn-pod1">
-        <span class="badge">Running Pod</span><br>
-        <strong>Pod A</strong> (app=backend)<br>
-        IP: 192.168.1.10
-      </div>
-
-      <div class="item" id="wn-pod2">
-        <span class="badge">Running Pod</span><br>
-        <strong>Pod B</strong> (app=backend)<br>
-        IP: 192.168.1.11
+    <div class="col" id="col-right">
+      <div class="box">
+        <div class="box-title">Worker node</div>
+        <div class="box-desc">Does the work. Runs the Pods and moves the packets. Every node in the cluster runs the same agents.</div>
+        <div class="cards">
+          <div class="card" id="c-kubelet">
+            <div class="card-head"><span class="name">kubelet + CNI plugin</span><span class="where">node agent</span></div>
+            <div class="desc">kubelet starts this node's Pods through the container runtime and reports their status. The CNI plugin gives each Pod an IP.</div>
+            <div class="state" id="s-kubelet"></div>
+          </div>
+          <div class="card" id="c-proxy">
+            <div class="card-head"><span class="name">kube-proxy</span><span class="where">node agent</span></div>
+            <div class="desc">Watches Services and EndpointSlices, and turns them into kernel NAT rules. It writes rules; it never touches packets.</div>
+            <div class="state" id="s-proxy"></div>
+          </div>
+          <div class="card" id="c-client">
+            <div class="card-head"><span class="name">frontend Pod</span><span class="where">a client of the Service</span></div>
+            <div class="desc">An application Pod that calls <span class="mono">backend-svc</span>.</div>
+            <div class="state" id="s-client"></div>
+          </div>
+          <div class="card" id="c-kernel">
+            <div class="card-head"><span class="name">Linux kernel</span><span class="where">netfilter + conntrack</span></div>
+            <div class="desc">Where packets are actually rewritten, using the rules kube-proxy loaded (iptables or nftables).</div>
+            <div class="state" id="s-kernel"></div>
+          </div>
+          <div class="pods">
+            <div class="card" id="c-podA">
+              <div class="card-head"><span class="name">Pod A</span><span class="where">backend</span></div>
+              <div class="state" id="s-podA"></div>
+            </div>
+            <div class="card" id="c-podB">
+              <div class="card-head"><span class="name">Pod B</span><span class="where">backend</span></div>
+              <div class="state" id="s-podB"></div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
+
+    <svg class="wires" id="wires" aria-hidden="true">
+      <defs>
+        <marker id="m-api" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-api"/></marker>
+        <marker id="m-watch" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-watch"/></marker>
+        <marker id="m-etcd" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-etcd"/></marker>
+        <marker id="m-local" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-local"/></marker>
+        <marker id="m-packet" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" class="f-packet"/></marker>
+      </defs>
+      <g id="wire-layer"></g>
+    </svg>
   </div>
 </div>
 
 <script>
-  var INTRO = "Click the steps in order to see how the control plane and the node agents work together to route traffic to a Service.";
-  var EP_EMPTY = "<span class='badge'>API Object</span><br><strong>EndpointSlice</strong><br>Endpoints: [ waiting... ]";
-  var KERNEL_EMPTY = "<span class='badge'>Linux Kernel</span><br><strong>iptables / nftables NAT rules</strong><br>[ no rules for this Service ]";
-  var timers = [];
+(function () {
+  var NAMES = {
+    kubectl: 'kubectl', api: 'kube-apiserver', etcd: 'etcd', ctrl: 'EndpointSlice controller',
+    kubelet: 'kubelet', proxy: 'kube-proxy', kernel: 'Linux kernel', client: 'frontend Pod',
+    podA: 'Pod A', podB: 'Pod B'
+  };
+  var TYPES = {
+    api:    { label: 'API request',   color: 'api' },
+    resp:   { label: 'API response',  color: 'api' },
+    watch:  { label: 'Watch event',   color: 'watch' },
+    etcd:   { label: 'etcd write',    color: 'etcd' },
+    local:  { label: 'Inside the node', color: 'local' },
+    self:   { label: 'Internal step', color: 'local' },
+    packet: { label: 'Packet',        color: 'packet' }
+  };
 
   function $(id) { return document.getElementById(id); }
-  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
-  function enableOnly(n) {
-    for (var i = 1; i <= 5; i++) { $('btn' + i).disabled = (i !== n); }
+  function card(k) { return $('c-' + k); }
+  function setState(k, html) { $('s-' + k).innerHTML = html; }
+  function on() { for (var i = 0; i < arguments.length; i++) { card(arguments[i]).classList.add('on'); } }
+
+  /* ---------- etcd contents ---------- */
+  var etcdKeys = [];
+  function etcdPut(key, value, fresh) {
+    etcdKeys = etcdKeys.filter(function (k) { return k.key !== key; });
+    etcdKeys.push({ key: key, value: value });
+    renderEtcd(fresh ? key : null);
+  }
+  function renderEtcd(freshKey) {
+    if (!etcdKeys.length) {
+      setState('etcd', '<span class="lbl">Stored keys</span><em>No backend objects yet (other cluster objects not shown).</em>');
+      return;
+    }
+    setState('etcd', '<span class="lbl">Stored keys</span>' + etcdKeys.map(function (k) {
+      return '<div class="key' + (k.key === freshKey ? ' fresh' : '') + '"><b>' + k.key + '</b>' + k.value + '</div>';
+    }).join(''));
   }
 
-  function step1() {
-    $('wn-pod1').classList.add('active');
-    $('wn-pod2').classList.add('active');
-    $('exp-text').innerHTML = "<strong>Step 1:</strong> The kubelet starts the Pods through the container runtime. The CNI plugin gives each Pod its own IP address (192.168.1.x). These IPs change every time a Pod is replaced.";
-    enableOnly(2);
+  /* ---------- Initial state ---------- */
+  function initialState() {
+    etcdKeys = [];
+    setState('kubectl', '<em>Idle.</em>');
+    setState('api', '<span class="lbl">Last request</span><em>None yet.</em>');
+    renderEtcd();
+    setState('ctrl', '<span class="lbl">Doing</span>Watching Services and Pods. <em>No Service selects app=backend yet.</em>');
+    setState('kubelet', '<span class="lbl">Doing</span>The scheduler has assigned two backend Pods to this node. <em>Not started yet.</em>');
+    setState('proxy', '<span class="lbl">Doing</span>Watching Services and EndpointSlices. <em>Nothing about backend-svc yet.</em>');
+    setState('kernel', '<span class="lbl">NAT rules for 10.96.0.50</span><em>None. A packet to this IP would go nowhere.</em>');
+    setState('client', '<span class="lbl">IP</span>192.168.1.20');
+    setState('podA', '<span class="lbl">Status</span><em>Not started</em>');
+    setState('podB', '<span class="lbl">Status</span><em>Not started</em>');
   }
 
-  function step2() {
-    $('cp-svc').classList.add('active');
-    $('exp-text').innerHTML = "<strong>Step 2:</strong> Someone applies a Service manifest. The API server allocates a virtual ClusterIP (10.96.0.50) from the Service IP range and stores the Service in etcd. No process listens on this IP.";
-    enableOnly(3);
+  /* ---------- Steps ---------- */
+  var STEPS = [
+    {
+      title: 'Step 1 · The Pods start on the worker node',
+      summary: 'The scheduler has already picked this node for two Pods labelled app=backend (not shown). Now the node starts them, and the control plane learns their IP addresses.',
+      acts: [
+        {
+          type: 'local', wires: [['kubelet', 'podA'], ['kubelet', 'podB', 10]],
+          call: 'CRI: RunPodSandbox → CreateContainer → StartContainer;  CNI: ADD',
+          text: 'kubelet asks the container runtime (for example containerd) to start each Pod. The CNI plugin connects each Pod to the cluster network and gives it an IP: 192.168.1.10 and 192.168.1.11. These IPs change whenever a Pod is replaced.',
+          run: function () {
+            on('kubelet', 'podA', 'podB');
+            setState('kubelet', '<span class="lbl">Doing</span>Running pod-a and pod-b. Probing them for readiness.');
+            setState('podA', '<span class="lbl">Labels</span>app=backend<span class="lbl">IP</span>192.168.1.10<span class="lbl">Status</span>Running, ready');
+            setState('podB', '<span class="lbl">Labels</span>app=backend<span class="lbl">IP</span>192.168.1.11<span class="lbl">Status</span>Running, ready');
+          }
+        },
+        {
+          type: 'api', from: 'kubelet', to: 'api',
+          call: 'PATCH /api/v1/namespaces/default/pods/pod-a/status   (and pod-b)',
+          text: 'kubelet reports each Pod\'s status to the API server: running, ready, and its podIP. The API server checks that this kubelet is allowed to update these Pods.',
+          run: function () {
+            on('api');
+            setState('api', '<span class="lbl">Last request</span>PATCH pods/pod-a/status, pods/pod-b/status<br>from kubelet → 200 OK');
+          }
+        },
+        {
+          type: 'etcd', from: 'api', to: 'etcd',
+          call: 'etcd Txn (gRPC): put /registry/pods/default/pod-a  and  …/pod-b',
+          text: 'The API server saves the updated Pod objects in etcd. The cluster\'s database now knows that two Pods carry app=backend, and what their IPs are.',
+          run: function () {
+            on('etcd');
+            etcdPut('/registry/pods/default/pod-a', 'Pod · app=backend · podIP 192.168.1.10 · Ready', true);
+            etcdPut('/registry/pods/default/pod-b', 'Pod · app=backend · podIP 192.168.1.11 · Ready', true);
+          }
+        }
+      ]
+    },
+    {
+      title: 'Step 2 · You create the Service',
+      summary: 'kubectl sends the Service manifest to the API server. The API server gives the Service a virtual IP and stores it in etcd. From then on, the Service is a record in etcd and nothing more.',
+      acts: [
+        {
+          type: 'api', from: 'kubectl', to: 'api',
+          call: 'POST /api/v1/namespaces/default/services   (body: backend-svc, selector app=backend, port 80 → 8080)',
+          text: '“kubectl apply -f backend-svc.yaml” first asks with a GET whether the Service exists. It does not, so kubectl creates it with a POST over HTTPS.',
+          run: function () {
+            on('kubectl');
+            setState('kubectl', '$ kubectl apply -f backend-svc.yaml<br><em>waiting for the API server…</em>');
+          }
+        },
+        {
+          type: 'self', at: 'api',
+          call: 'authenticate → authorize (RBAC) → admission → validate → allocate ClusterIP',
+          text: 'The API server checks who you are and whether you may create Services, validates the object, then picks a free address from the Service IP range: 10.96.0.50. This is the ClusterIP.',
+          run: function () {
+            setState('api', '<span class="lbl">Last request</span>POST services from kubectl<br>✔ authenticated ✔ authorized ✔ valid<br>ClusterIP allocated: <b>10.96.0.50</b>');
+          }
+        },
+        {
+          type: 'etcd', from: 'api', to: 'etcd',
+          call: 'etcd Txn (gRPC): put /registry/services/specs/default/backend-svc',
+          text: 'The Service is saved in etcd. This record IS the Service: a name, the ClusterIP, a selector and a port. No network card has 10.96.0.50 and no process listens on it. The Service does not list any Pods; it only has the selector.',
+          run: function () {
+            etcdPut('/registry/services/specs/default/backend-svc', 'Service · clusterIP 10.96.0.50 · selector app=backend · port 80 → 8080', true);
+          }
+        },
+        {
+          type: 'resp', from: 'api', to: 'kubectl', offset: 20,
+          call: '201 Created',
+          text: 'The API server answers. kubectl prints “service/backend-svc created” and exits. Its part is over.',
+          run: function () {
+            setState('kubectl', '$ kubectl apply -f backend-svc.yaml<br>service/backend-svc created');
+          }
+        }
+      ]
+    },
+    {
+      title: 'Step 3 · The EndpointSlice controller finds the Pods',
+      summary: 'Nobody tells the controller about the new Service. It already has a watch open, so the API server pushes the change to it. It then creates an EndpointSlice through an API call, like any other client.',
+      acts: [
+        {
+          type: 'watch', from: 'api', to: 'ctrl',
+          call: 'Watch stream  GET /api/v1/services?watch=true  →  event ADDED default/backend-svc',
+          text: 'The controller opened this long-lived HTTPS watch when it started. The API server sends the new Service down it straight away. The controller never reads etcd directly.',
+          run: function () {
+            on('ctrl');
+            setState('ctrl', '<span class="lbl">Doing</span>Received: Service backend-svc ADDED<br>selector app=backend');
+          }
+        },
+        {
+          type: 'self', at: 'ctrl',
+          call: 'local cache lookup: Pods in default where app=backend and Ready',
+          text: 'The controller keeps a local copy (an informer cache) of every Pod, kept fresh by a second watch. It finds pod-a 192.168.1.10 and pod-b 192.168.1.11, both ready. A Pod that is not ready would be left out.',
+          run: function () {
+            setState('ctrl', '<span class="lbl">Doing</span>Service backend-svc selects:<br>pod-a 192.168.1.10 ✔ ready<br>pod-b 192.168.1.11 ✔ ready');
+          }
+        },
+        {
+          type: 'api', from: 'ctrl', to: 'api',
+          call: 'POST /apis/discovery.k8s.io/v1/namespaces/default/endpointslices   (backend-svc-x7k2p)',
+          text: 'The controller creates an EndpointSlice: an ordinary API object with the two Pod IPs, port 8080, and the label kubernetes.io/service-name=backend-svc. It goes through the same checks as a request from kubectl.',
+          run: function () {
+            setState('api', '<span class="lbl">Last request</span>POST endpointslices from the EndpointSlice controller<br>✔ authenticated ✔ authorized ✔ valid → 201 Created');
+          }
+        },
+        {
+          type: 'etcd', from: 'api', to: 'etcd',
+          call: 'etcd Txn (gRPC): put /registry/endpointslices/default/backend-svc-x7k2p',
+          text: 'The EndpointSlice is stored in etcd. The Service and its list of Pods are two separate records. When Pods change, only the EndpointSlice is rewritten; the Service stays the same.',
+          run: function () {
+            etcdPut('/registry/endpointslices/default/backend-svc-x7k2p', 'EndpointSlice · for backend-svc · 192.168.1.10:8080, 192.168.1.11:8080', true);
+            setState('ctrl', '<span class="lbl">Doing</span>EndpointSlice backend-svc-x7k2p is up to date. Watching for changes.');
+          }
+        }
+      ]
+    },
+    {
+      title: 'Step 4 · kube-proxy turns the records into kernel rules',
+      summary: 'So far everything is records in etcd. kube-proxy, which runs on every node, receives those records through its own watch and writes them into the node\'s kernel as NAT rules.',
+      acts: [
+        {
+          type: 'watch', from: 'api', to: 'proxy',
+          call: 'Watch streams  →  ADDED Service backend-svc  +  ADDED EndpointSlice backend-svc-x7k2p',
+          text: 'kube-proxy keeps watches open on Services and EndpointSlices. The API server pushes both new objects to it. Every kube-proxy on every node receives the same events.',
+          run: function () {
+            on('proxy');
+            setState('proxy', '<span class="lbl">Doing</span>Service 10.96.0.50:80 → endpoints<br>192.168.1.10:8080, 192.168.1.11:8080');
+          }
+        },
+        {
+          type: 'local', from: 'proxy', to: 'kernel',
+          call: 'iptables-restore   (nft -f in nftables mode)',
+          text: 'kube-proxy computes the NAT rules and loads them into the kernel in one batch. Then it goes back to watching. It is not in the path of any packet; if it stopped now, these rules would keep working.',
+          run: function () {
+            on('kernel');
+            setState('proxy', '<span class="lbl">Doing</span>Rules for backend-svc loaded. Watching for changes.');
+            setState('kernel', '<span class="lbl">NAT rules for 10.96.0.50</span>IF dst == 10.96.0.50:80<br>&nbsp;├→ 50%: DNAT to 192.168.1.10:8080<br>&nbsp;└→ 50%: DNAT to 192.168.1.11:8080');
+          }
+        }
+      ]
+    },
+    {
+      title: 'Step 5 · A request travels from the client to a Pod',
+      summary: 'Now traffic flows. Watch the control plane: it does nothing. The decision is made by the kernel on the node, using the rules from step 4. (DNS already turned the name backend-svc into 10.96.0.50.)',
+      enter: function () {
+        $('stage').classList.add('bypassed');
+        ['kubelet', 'proxy', 'podB'].forEach(function (k) { card(k).classList.add('dim'); });
+      },
+      acts: [
+        {
+          type: 'packet', from: 'client', to: 'kernel',
+          call: 'TCP SYN   src 192.168.1.20:51234 → dst 10.96.0.50:80',
+          text: 'The frontend Pod opens a connection to the Service\'s IP. The packet leaves the Pod and enters the node\'s kernel.',
+          run: function () {
+            on('client');
+            card('client').classList.add('hl');
+            setState('client', '<span class="lbl">IP</span>192.168.1.20<span class="lbl">Doing</span>connect to backend-svc → 10.96.0.50:80');
+          }
+        },
+        {
+          type: 'self', at: 'kernel',
+          call: 'match 10.96.0.50:80 → random pick → Pod A → DNAT dst to 192.168.1.10:8080 → save conntrack entry',
+          text: 'The kernel finds the rule for the ClusterIP, picks one Pod at random (Pod A this time), and rewrites the packet\'s destination. It records the translation in its connection-tracking table.',
+          run: function () {
+            card('kernel').classList.add('hl');
+            setState('kernel', '<span class="lbl">NAT rules for 10.96.0.50</span>IF dst == 10.96.0.50:80<br>&nbsp;├→ 50%: DNAT to 192.168.1.10:8080 ◀ chosen<br>&nbsp;└→ 50%: DNAT to 192.168.1.11:8080<span class="lbl">conntrack</span>192.168.1.20:51234 → 10.96.0.50:80 = 192.168.1.10:8080');
+          }
+        },
+        {
+          type: 'packet', from: 'kernel', to: 'podA',
+          call: 'TCP SYN   src 192.168.1.20:51234 → dst 192.168.1.10:8080',
+          text: 'The rewritten packet is routed to Pod A like any normal packet. If Pod A ran on another node, the CNI network would carry it there. Pod A never sees the ClusterIP.',
+          run: function () {
+            card('podA').classList.add('hl');
+            setState('podA', '<span class="lbl">Labels</span>app=backend<span class="lbl">IP</span>192.168.1.10<span class="lbl">Status</span>Handling the request');
+          }
+        },
+        {
+          type: 'packet', wires: [['podA', 'kernel', 20], ['kernel', 'client', 20]],
+          call: 'reply  src 192.168.1.10:8080  →(conntrack rewrites)→  src 10.96.0.50:80',
+          text: 'Pod A answers. On the way back, the kernel uses the conntrack entry to change the source back to 10.96.0.50:80, so the client sees a reply from the address it called. Later packets on this connection go to Pod A without a new pick.',
+          run: function () {
+            setState('client', '<span class="lbl">IP</span>192.168.1.20<span class="lbl">Doing</span>✔ reply received from 10.96.0.50:80');
+          }
+        }
+      ]
+    }
+  ];
+
+  /* ---------- Wires ---------- */
+  var stage = $('stage'), layer = $('wire-layer');
+  var drawn = [];   // { from, to, offset, type, num }
+  var SVGNS = 'http://www.w3.org/2000/svg';
+
+  function rel(el) {
+    var r = el.getBoundingClientRect(), s = stage.getBoundingClientRect();
+    return { l: r.left - s.left, r: r.right - s.left, t: r.top - s.top, b: r.bottom - s.top,
+             cx: (r.left + r.right) / 2 - s.left, cy: (r.top + r.bottom) / 2 - s.top, w: r.width };
+  }
+  function pathFor(a, b, off) {
+    var A = rel(card(a)), B = rel(card(b)), W = stage.clientWidth;
+    var overlap = Math.min(A.r, B.r) - Math.max(A.l, B.l);
+    var y1 = A.cy + off, y2 = B.cy + off, x1, x2;
+    if (overlap > 40) {
+      // Same column: curve out along the outer side.
+      var right = A.w > W * 0.6 || A.cx > W / 2;
+      var dir = right ? 1 : -1;
+      x1 = right ? A.r : A.l; x2 = right ? B.r : B.l;
+      var bulge = dir * (22 + Math.min(34, Math.abs(y2 - y1) * 0.1) + Math.abs(off));
+      var xo = Math.max(x1, x2) * (right ? 1 : 0) + Math.min(x1, x2) * (right ? 0 : 1);
+      return 'M' + x1 + ',' + y1 + ' C' + (xo + bulge) + ',' + y1 + ' ' + (xo + bulge) + ',' + y2 + ' ' + x2 + ',' + y2;
+    }
+    var lr = A.cx < B.cx;
+    x1 = lr ? A.r : A.l; x2 = lr ? B.l : B.r;
+    var mx = (x1 + x2) / 2;
+    return 'M' + x1 + ',' + y1 + ' C' + mx + ',' + y1 + ' ' + mx + ',' + y2 + ' ' + x2 + ',' + y2;
+  }
+  function drawWire(w, animate) {
+    var color = TYPES[w.type].color;
+    var p = document.createElementNS(SVGNS, 'path');
+    p.setAttribute('d', pathFor(w.from, w.to, w.offset || 0));
+    p.setAttribute('class', 'wire ' + w.type + ' s-' + color + (animate ? ' fade' : ''));
+    p.setAttribute('marker-end', 'url(#m-' + color + ')');
+    layer.appendChild(p);
+    var len = p.getTotalLength(), mid = p.getPointAtLength(len / 2);
+    var g = document.createElementNS(SVGNS, 'g');
+    g.setAttribute('class', 'badge-num');
+    g.innerHTML = '<circle cx="' + mid.x + '" cy="' + mid.y + '" r="10" class="f-' + color + '"/><text x="' + mid.x + '" y="' + mid.y + '">' + w.num + '</text>';
+    layer.appendChild(g);
+    if (animate && !reduced()) {
+      var dot = document.createElementNS(SVGNS, 'circle');
+      dot.setAttribute('r', '5');
+      dot.setAttribute('class', 'f-' + color);
+      var mo = document.createElementNS(SVGNS, 'animateMotion');
+      mo.setAttribute('dur', '0.9s'); mo.setAttribute('fill', 'freeze'); mo.setAttribute('begin', 'indefinite');
+      mo.setAttribute('path', p.getAttribute('d'));
+      dot.appendChild(mo);
+      layer.appendChild(dot);
+      try { mo.beginElement(); } catch (e) {}
+      setTimeout(function () { if (dot.parentNode) { dot.parentNode.removeChild(dot); } }, 950);
+    }
+    if (animate) {
+      requestAnimationFrame(function () { p.classList.add('show'); g.classList.add('show'); });
+    } else {
+      p.classList.add('show'); g.classList.add('show');
+    }
+  }
+  function redrawAll() {
+    layer.innerHTML = '';
+    drawn.forEach(function (w) { drawWire(w, false); });
+  }
+  function reduced() { return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches; }
+
+  /* ---------- Panel ---------- */
+  function wiresOf(a) {
+    if (a.wires) { return a.wires.map(function (w) { return { from: w[0], to: w[1], offset: w[2] || 0 }; }); }
+    if (a.from) { return [{ from: a.from, to: a.to, offset: a.offset || 0 }]; }
+    return [];
+  }
+  function actorsText(a) {
+    if (a.at) { return NAMES[a.at]; }
+    var ws = wiresOf(a);
+    var sameSource = ws.every(function (w) { return w.from === ws[0].from; });
+    if (sameSource) { return NAMES[ws[0].from] + ' → ' + ws.map(function (w) { return NAMES[w.to]; }).join(', '); }
+    return [NAMES[ws[0].from]].concat(ws.map(function (w) { return NAMES[w.to]; })).join(' → ');
+  }
+  function renderIntro() {
+    $('panel').innerHTML =
+      '<h3>How to read this diagram</h3>' +
+      '<ul class="intro-list">' +
+      '<li><b>Left:</b> kubectl, outside the cluster, and the <b>control plane</b>. The control plane only stores and serves records.</li>' +
+      '<li><b>Right:</b> one <b>worker node</b>. This is where Pods run and where packets are rewritten.</li>' +
+      '<li>Each card says what the component is, where it runs, and (in the grey box) what it holds or is doing right now.</li>' +
+      '<li>Press <b>1. Start Pods</b>. Each step plays its actions in order. Arrow colours show the kind of call; numbers match the list that appears here.</li>' +
+      '<li>You can jump to any step, or press <b>Replay step</b> to watch it again.</li>' +
+      '</ul>';
+  }
+  function renderPanel(step) {
+    var html = '<h3>' + step.title + '</h3><p class="summary">' + step.summary + '</p><ol class="acts">';
+    step.acts.forEach(function (a, i) {
+      var t = TYPES[a.type];
+      html += '<li class="act" id="act-' + i + '"><span class="num bg-' + t.color + '">' + (i + 1) + '</span><div class="act-body">' +
+        '<div class="act-head"><span class="chip c-' + t.color + '">' + t.label + '</span><b>' + actorsText(a) + '</b></div>' +
+        '<code>' + a.call + '</code><p>' + a.text + '</p></div></li>';
+    });
+    $('panel').innerHTML = html + '</ol>';
   }
 
-  function step3() {
-    $('cp-cm').classList.add('active');
-    later(function () {
-      $('cp-ep').classList.add('active');
-      $('cp-ep').innerHTML = "<span class='badge'>API Object</span><br><strong>EndpointSlice</strong><br>Endpoints: [ 192.168.1.10, 192.168.1.11 ]";
-    }, 400);
-    $('exp-text').innerHTML = "<strong>Step 3:</strong> The EndpointSlice controller sees the Service's selector (app=backend), finds the ready Pods with that label, and writes their IPs into an EndpointSlice through the API server.";
-    enableOnly(4);
+  /* ---------- Playback ---------- */
+  var timers = [], current = 0;
+  function clearTimers() { timers.forEach(clearTimeout); timers = []; }
+  function clearHighlights() {
+    document.querySelectorAll('.card').forEach(function (c) { c.classList.remove('acting', 'target'); });
+  }
+  function resetAll() {
+    clearTimers();
+    drawn = []; layer.innerHTML = '';
+    stage.classList.remove('bypassed');
+    document.querySelectorAll('.card').forEach(function (c) { c.classList.remove('on', 'acting', 'target', 'hl', 'dim'); });
+    initialState();
+  }
+  function playAct(step, i, animate) {
+    var a = step.acts[i];
+    clearHighlights();
+    document.querySelectorAll('.act').forEach(function (li, j) {
+      li.classList.toggle('now', j === i);
+      if (j < i) { li.classList.add('done'); }
+    });
+    if (a.at) { card(a.at).classList.add('acting'); }
+    wiresOf(a).forEach(function (w) {
+      card(w.from).classList.add('acting');
+      card(w.to).classList.add('target');
+      var wire = { from: w.from, to: w.to, offset: w.offset, type: a.type, num: i + 1 };
+      drawn.push(wire);
+      drawWire(wire, animate);
+    });
+    a.run();
+  }
+  function runStep(n) {
+    resetAll();
+    current = n;
+    for (var s = 0; s < n - 1; s++) {
+      STEPS[s].acts.forEach(function (a) { a.run(); });
+    }
+    renderEtcd();   // earlier records are no longer "fresh"
+    var step = STEPS[n - 1];
+    if (step.enter) { step.enter(); }
+    renderPanel(step);
+    updateButtons();
+    var gap = reduced() ? 900 : 1700;
+    step.acts.forEach(function (a, i) {
+      timers.push(setTimeout(function () { playAct(step, i, true); }, 250 + i * gap));
+    });
+    timers.push(setTimeout(function () {
+      clearHighlights();
+      document.querySelectorAll('.act').forEach(function (li) { li.classList.remove('now'); li.classList.add('done'); });
+    }, 250 + step.acts.length * gap));
+  }
+  function updateButtons() {
+    document.querySelectorAll('[data-step]').forEach(function (b) {
+      var n = +b.getAttribute('data-step');
+      b.classList.toggle('done', n < current);
+      b.classList.toggle('current', n === current);
+    });
+    $('btnReplay').disabled = current === 0;
+    $('btnReplay').style.visibility = current === 0 ? 'hidden' : 'visible';
   }
 
-  function step4() {
-    $('wn-proxy').classList.add('active');
-    later(function () {
-      $('wn-kernel').classList.add('active');
-      $('wn-kernel').innerHTML = "<span class='badge'>Linux Kernel</span><br><strong>iptables / nftables NAT rules</strong><br>IF dest == 10.96.0.50:80<br>&nbsp;&nbsp;&boxur;&rarr; 50% DNAT to 192.168.1.10<br>&nbsp;&nbsp;&boxur;&rarr; 50% DNAT to 192.168.1.11";
-    }, 400);
-    $('exp-text').innerHTML = "<strong>Step 4:</strong> kube-proxy, which runs on every node, receives the Service and EndpointSlice through its watch and programs the local kernel with NAT rules for the ClusterIP.";
-    enableOnly(5);
-  }
+  document.querySelectorAll('[data-step]').forEach(function (b) {
+    b.addEventListener('click', function () { runStep(+b.getAttribute('data-step')); });
+  });
+  $('btnReplay').addEventListener('click', function () { if (current) { runStep(current); } });
+  $('btnReset').addEventListener('click', function () { resetAll(); current = 0; renderIntro(); updateButtons(); });
 
-  function step5() {
-    ['cp-svc', 'cp-ep', 'cp-cm', 'wn-proxy'].forEach(function (id) { $(id).classList.remove('active'); });
-    $('wn-kernel').classList.add('highlight');
-    later(function () {
-      $('wn-kernel').classList.remove('highlight');
-      $('wn-kernel').classList.add('active');
-      $('wn-pod1').classList.add('highlight');
-    }, 1000);
-    $('exp-text').innerHTML = "<strong>Step 5:</strong> A packet leaves a client for 10.96.0.50. The kernel matches the NAT rule, picks Pod A at random, rewrites the destination, and forwards the packet. The control plane is not involved at all.";
-    enableOnly(0);
-  }
+  resetAll(); renderIntro(); updateButtons();
 
-  function reset() {
-    timers.forEach(clearTimeout);
-    timers = [];
-    document.querySelectorAll('.item').forEach(function (el) { el.classList.remove('active', 'highlight'); });
-    $('cp-ep').innerHTML = EP_EMPTY;
-    $('wn-kernel').innerHTML = KERNEL_EMPTY;
-    $('exp-text').innerHTML = INTRO;
-    enableOnly(1);
-  }
-
-  reset();
+  window.addEventListener('resize', redrawAll);
+  new ResizeObserver(redrawAll).observe(stage);
 
   // Theme changes from the embedding page.
   window.addEventListener('message', function (e) {
@@ -324,15 +723,14 @@
   });
 
   // Tell the embedding page how tall we are so the iframe can fit.
-  (function autoResize() {
-    var c = document.querySelector('.widget-container');
-    function notifyHeight() {
-      var h = Math.ceil(c.getBoundingClientRect().height);
-      if (window.parent !== window) { window.parent.postMessage({ type: 'widget-resize', height: h }, '*'); }
-    }
-    window.addEventListener('load', function () { setTimeout(notifyHeight, 120); });
-    new ResizeObserver(notifyHeight).observe(c);
-  })();
+  var container = document.querySelector('.widget-container');
+  function notifyHeight() {
+    var h = Math.ceil(container.getBoundingClientRect().height);
+    if (window.parent !== window) { window.parent.postMessage({ type: 'widget-resize', height: h }, '*'); }
+  }
+  window.addEventListener('load', function () { setTimeout(notifyHeight, 120); });
+  new ResizeObserver(notifyHeight).observe(container);
+})();
 </script>
 </body>
 </html>

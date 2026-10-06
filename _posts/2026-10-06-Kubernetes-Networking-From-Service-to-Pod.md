@@ -11,9 +11,9 @@ image: /assets/images/social/2026-10-06-Kubernetes-Networking-From-Service-to-Po
 
 A Kubernetes Service has an IP address that no machine owns and no process listens on. Yet when you send traffic to it, the traffic arrives at one of your Pods. This post explains how, one step at a time.
 
-Click the steps in the widget below, in order. The left box is the control plane, where the cluster's records live. The right box is a worker node, where the traffic actually flows.
+Click the steps in the diagram below, in order. On the left are `kubectl`, outside the cluster, and the control plane: the API server, etcd and the EndpointSlice controller, where the cluster's records are made and kept. On the right is a worker node, where the Pods run and the traffic actually flows. Each step plays a numbered list of actions. Each action names who does it, the exact API call, watch event, etcd write or packet involved, and what changes as a result. The grey box on each card shows what that component holds or is doing at that moment. Watch the etcd card fill up with the actual keys.
 
-{% include widget.html src="/assets/widgets/k8s-service-to-pod-flow.html" title="Kubernetes Service to Pod Flow" height=760 %}
+{% include widget.html src="/assets/widgets/k8s-service-to-pod-flow.html" title="Kubernetes Service to Pod Flow" height=1900 %}
 
 ## The problem a Service solves
 
