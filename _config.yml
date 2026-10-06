@@ -15,11 +15,33 @@ plugins:
   - jekyll-sitemap
   - jekyll-seo-tag
   - jekyll-redirect-from
+  - jekyll-paginate
+
+# Home page pagination (jekyll-paginate needs index.html at the repo root)
+paginate: 5
+paginate_path: "/page:num/"
 
 feed:
   posts_limit: 20
 
+# Large preview image when a link is shared
+twitter:
+  card: summary_large_image
+
+# Files that are for maintaining the site, not for publishing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - WRITING.md
+  - tools
+  - vendor
+  - node_modules
+
 defaults:
+  - scope:
+      path: ""
+    values:
+      image: /assets/images/social-default.png
   - scope:
       path: "assets"
     values:

@@ -1,0 +1,7 @@
+- title: Kubernetes Cluster Architecture
+  description: >-
+    Interactive diagram of the control plane, the worker node and the kubectl client.
+    Hover or click any component to see what it does and which paths it uses.
+  widget: /assets/widgets/k8s-visual-cheat-sheet.html
+  post: /2026/10/06/Learning-Kubernetes-An-Interactive-Cheat-Sheet.html
+  tags: [kubernetes, architecture]

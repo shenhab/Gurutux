@@ -1,0 +1,20 @@
+---
+layout: page
+title: Cheat Sheets
+permalink: /cheatsheets/
+---
+<p>Interactive diagrams and quick references. Each one opens full screen on its own, and each has a post that explains it.</p>
+
+<div class="cards">
+  {% for sheet in site.data.cheatsheets %}
+  <section class="card">
+    <h2>{{ sheet.title | escape }}</h2>
+    <p>{{ sheet.description | escape }}</p>
+    <p>{% for tag in sheet.tags %}<a class="tag" href="{{ '/tags/' | relative_url }}#{{ tag | slugify }}">{{ tag | escape }}</a> {% endfor %}</p>
+    <div class="card-actions">
+      <a class="btn" href="{{ sheet.widget | relative_url }}">Open the cheat sheet</a>
+      {% if sheet.post %}<a class="btn" href="{{ sheet.post | relative_url }}">Read the explanation</a>{% endif %}
+    </div>
+  </section>
+  {% endfor %}
+</div>

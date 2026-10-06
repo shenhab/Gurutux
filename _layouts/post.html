@@ -1,18 +1,55 @@
 ---
 layout: default
 ---
+{%- assign words = content | strip_html | number_of_words -%}
+{%- assign minutes = words | divided_by: 200.0 | ceil -%}
+{%- if minutes < 1 -%}{%- assign minutes = 1 -%}{%- endif -%}
 <article class="post">
   <header class="post-header">
     <h1 class="post-title">{{ page.title | escape }}</h1>
     <p class="post-meta">
       <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %-d, %Y" }}</time>
-      {%- if page.author %} <span class="post-sep">·</span> {{ page.author | escape }}{% endif %}
+      {%- if page.last_modified_at %}
+      {%- assign published_day = page.date | date: "%Y-%m-%d" %}
+      {%- assign modified_day = page.last_modified_at | date: "%Y-%m-%d" %}
+      {%- if modified_day != published_day %}
+      <span class="post-sep">&middot;</span> Updated <time datetime="{{ page.last_modified_at | date_to_xmlschema }}">{{ page.last_modified_at | date: "%B %-d, %Y" }}</time>
+      {%- endif %}
+      {%- endif %}
+      {%- if page.author %}
+      <span class="post-sep">&middot;</span> {{ page.author | escape }}
+      {%- endif %}
+      <span class="post-sep">&middot;</span> {{ minutes }} min read
     </p>
     {%- if page.tags and page.tags.size > 0 %}
-    <p class="post-tags">{% for tag in page.tags %}<span class="tag">{{ tag | escape }}</span> {% endfor %}</p>
+    <p class="post-tags">
+      {%- for tag in page.tags %}<a class="tag" href="{{ '/tags/' | relative_url }}#{{ tag | slugify }}">{{ tag | escape }}</a> {% endfor -%}
+    </p>
     {%- endif %}
   </header>
+
+  {% include series-box.html %}
+
+  <nav class="toc" id="toc" aria-label="Contents" hidden></nav>
+
   <div class="post-content">
     {{ content }}
   </div>
+
+  <footer class="post-footer">
+    {% include share.html %}
+
+    {%- if page.previous or page.next %}
+    <nav class="post-nav" aria-label="Previous and next posts">
+      {%- if page.previous %}
+      <a class="post-nav-prev" rel="prev" href="{{ page.previous.url | relative_url }}"><span class="post-nav-label">&laquo; Older</span><span class="post-nav-title">{{ page.previous.title | escape }}</span></a>
+      {%- else %}<span></span>{% endif %}
+      {%- if page.next %}
+      <a class="post-nav-next" rel="next" href="{{ page.next.url | relative_url }}"><span class="post-nav-label">Newer &raquo;</span><span class="post-nav-title">{{ page.next.title | escape }}</span></a>
+      {%- else %}<span></span>{% endif %}
+    </nav>
+    {%- endif %}
+
+    {% include related-posts.html %}
+  </footer>
 </article>

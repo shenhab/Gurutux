@@ -3,7 +3,8 @@ layout: post
 title: "Ip Tables Concepts"
 date: 2012-04-08 13:15:00 -0000
 author: "Mahmoud Elshenhab"
-tags: Linux firewall network iptables
+tags: linux firewall network iptables
+image: /assets/images/social/2012-04-08-IP-Tables-Concepts.png
 ---
 
 I will try -As much as I can- to explain IP-Tables Concepts in a simple way.

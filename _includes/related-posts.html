@@ -1,0 +1,45 @@
+{%- comment -%}
+  Related posts by shared tags. Each candidate becomes a sortable key:
+  (100 + shared tag count) - (timestamp) | url   so a plain sort ranks by overlap, then by recency.
+  With no overlap at all, fall back to the newest other posts.
+{%- endcomment -%}
+{%- assign candidates = "" | split: "" -%}
+{%- for p in site.posts -%}
+  {%- if p.url != page.url -%}
+    {%- assign score = 0 -%}
+    {%- for t in p.tags -%}
+      {%- if page.tags contains t -%}{%- assign score = score | plus: 1 -%}{%- endif -%}
+    {%- endfor -%}
+    {%- if score > 0 -%}
+      {%- assign padded = score | plus: 100 -%}
+      {%- assign stamp = p.date | date: "%Y%m%d%H%M%S" -%}
+      {%- assign key = padded | append: "-" | append: stamp | append: "|" | append: p.url -%}
+      {%- assign candidates = candidates | push: key -%}
+    {%- endif -%}
+  {%- endif -%}
+{%- endfor -%}
+{%- assign candidates = candidates | sort | reverse -%}
+{%- if candidates.size > 0 -%}
+<section class="related" aria-label="Related posts">
+  <h2>Related posts</h2>
+  <ul>
+    {%- for key in candidates limit: 3 -%}
+    {%- assign rel_url = key | split: "|" | last -%}
+    {%- assign rel = site.posts | where: "url", rel_url | first -%}
+    <li><a href="{{ rel.url | relative_url }}">{{ rel.title | escape }}</a> <span class="related-date">{{ rel.date | date: "%b %-d, %Y" }}</span></li>
+    {%- endfor -%}
+  </ul>
+</section>
+{%- else -%}
+{%- assign others = site.posts | where_exp: "p", "p.url != page.url" -%}
+{%- if others.size > 0 -%}
+<section class="related" aria-label="More posts">
+  <h2>More posts</h2>
+  <ul>
+    {%- for rel in others limit: 3 -%}
+    <li><a href="{{ rel.url | relative_url }}">{{ rel.title | escape }}</a> <span class="related-date">{{ rel.date | date: "%b %-d, %Y" }}</span></li>
+    {%- endfor -%}
+  </ul>
+</section>
+{%- endif -%}
+{%- endif -%}

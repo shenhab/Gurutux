@@ -1,0 +1,6 @@
+{%- comment -%}
+  Embed an interactive widget page.
+  Usage: {% include widget.html src="/assets/widgets/NAME.html" title="Readable title" height=900 %}
+  The page is served from the same site, follows the light/dark theme, and resizes itself.
+{%- endcomment -%}
+<div class="widget"><iframe class="widget-frame" src="{{ include.src | relative_url }}" title="{{ include.title | escape }}" loading="lazy" style="height: {{ include.height | default: 900 }}px"></iframe><p class="widget-note">Trouble with the embed? <a href="{{ include.src | relative_url }}" target="_blank" rel="noopener">Open it in its own tab</a>.</p></div>

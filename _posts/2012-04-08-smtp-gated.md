@@ -3,8 +3,9 @@ layout: post
 title: "SMTP-Gated"
 date: 2012-04-08 12:15:00 -0000
 author: "Copied"
-tags: Linux mail smtp spam
+tags: linux mail smtp spam
 excerpt: "It is a server which have the ability to Scan, Recognize, and Block Mails that Containing Spam or Viruses."
+image: /assets/images/social/2012-04-08-smtp-gated.png
 ---
 
 ## What is SMTP-Gated ?

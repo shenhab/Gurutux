@@ -1,18 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ site.lang | default: 'en' }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <script>
+      /* Set the theme before first paint so there is no flash. Saved choice wins, then the system setting. */
+      (function () {
+        var t = null;
+        try { t = localStorage.getItem('theme'); } catch (e) {}
+        if (t !== 'light' && t !== 'dark') {
+          t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      })();
+    </script>
     {% seo %}
     {% feed_meta %}
     <link rel="icon" href="{{ '/favicon.ico' | relative_url }}" sizes="32x32">
     <link rel="icon" href="{{ '/assets/favicon.svg' | relative_url }}" type="image/svg+xml">
     <link rel="apple-touch-icon" href="{{ '/assets/apple-touch-icon.png' | relative_url }}">
-    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+    <script src="{{ '/assets/js/site.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>
 </head>
-<body>
+<body class="layout-{{ page.layout | default: 'default' }}">
+    <a class="skip-link" href="#main">Skip to content</a>
 
-    <header>
+    <header class="site-header">
         <h1><a href="{{ '/' | relative_url }}">{{ site.title | escape }}</a></h1>
         {% if site.description %}
             <p>{{ site.description | escape }}</p>
@@ -20,12 +34,12 @@
         {% include navigation.html %}
     </header>
 
-    <main>
+    <main id="main">
         {{ content }}
     </main>
 
-    <footer>
-        <p>&copy; {{ site.time | date: '%Y' }} {{ site.title | escape }}. <a href="{{ '/feed.xml' | relative_url }}">RSS</a></p>
+    <footer class="site-footer">
+        <p>&copy; {{ site.time | date: '%Y' }} {{ site.title | escape }}. <a href="{{ '/feed.xml' | relative_url }}">RSS</a> &middot; <a href="{{ '/archive/' | relative_url }}">Archive</a> &middot; <a href="{{ '/tags/' | relative_url }}">Tags</a></p>
     </footer>
 
 </body>

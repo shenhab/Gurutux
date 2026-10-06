@@ -1,0 +1,16 @@
+---
+layout: page
+title: Search
+permalink: /search/
+sitemap: false
+---
+<div id="search-app" data-index="{{ '/search.json' | relative_url }}">
+  <form id="search-form" class="search-form" role="search">
+    <input id="search-input" type="search" placeholder="Search posts, for example etcd or iptables" aria-label="Search posts" autocomplete="off">
+    <button type="submit" class="btn">Search</button>
+  </form>
+  <p id="search-status" class="search-status" aria-live="polite"></p>
+  <ul id="search-results" class="search-results"></ul>
+  <noscript><p>Search needs JavaScript. You can still browse the <a href="{{ '/archive/' | relative_url }}">archive</a> or the <a href="{{ '/tags/' | relative_url }}">tags</a>.</p></noscript>
+</div>
+<script src="{{ '/assets/js/search.js' | relative_url }}?v={{ site.time | date: '%s' }}" defer></script>

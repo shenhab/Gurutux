@@ -1,0 +1,46 @@
+name: Site checks
+
+# Builds the site the same way GitHub Pages does, then checks the posts' front matter
+# and every internal link, image and script. A failed run means something is broken.
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+  schedule:
+    # Mondays 05:17 UTC: also checks external links, because those rot over time.
+    - cron: "17 5 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Check post front matter
+        run: |
+          pip install pyyaml
+          python tools/check_posts.py
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Build the site
+        run: bundle exec jekyll build --trace
+        env:
+          JEKYLL_ENV: production
+
+      - name: Check internal links, images, scripts and anchors
+        run: python tools/check_links.py
+
+      - name: Check external links (weekly or on request, never blocks)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        run: python tools/check_links.py --external

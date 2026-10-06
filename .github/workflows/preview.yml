@@ -1,0 +1,28 @@
+name: Draft preview
+
+# Builds every branch except master with drafts and future-dated posts included, and
+# attaches the result as a downloadable file. Nothing here is published.
+on:
+  push:
+    branches-ignore: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.3"
+          bundler-cache: true
+      - name: Build with drafts and future posts
+        run: bundle exec jekyll build --drafts --future --trace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-preview
+          path: _site
+          retention-days: 7
