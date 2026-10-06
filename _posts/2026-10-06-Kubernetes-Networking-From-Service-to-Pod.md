@@ -57,6 +57,34 @@ Notice what has *not* happened. No network interface has this address. No proces
 
 The Service also says *which* Pods it stands for, through its `selector`: every Pod labelled `app=backend`. But it does not list them. Finding them is someone else's job.
 
+### How the API server picks the ClusterIP
+
+No controller and no outside service is involved. The kube-apiserver picks the address itself, while it handles the create request, before the Service is saved. That is why the `201 Created` response already contains the ClusterIP.
+
+**1. The range comes from a flag.** kube-apiserver is started with `--service-cluster-ip-range`, for example `10.96.0.0/12`, kubeadm's default. Every ClusterIP comes from this block. It must not overlap with the Pod network or the node network. A few addresses are taken by convention:
+
+- The first address, `10.96.0.1`, belongs to the built-in `kubernetes` Service in the `default` namespace. Pods use it to reach the API server.
+- `10.96.0.10` is usually the cluster DNS Service. kubeadm sets that up; it is a convention, not a rule.
+
+**2. It chooses an address.**
+
+- If the manifest sets `spec.clusterIP`, the API server checks that the address is inside the range and not already taken, and uses it.
+- If it sets `clusterIP: None`, the Service is *headless*: no IP is allocated, and DNS returns the Pod IPs directly.
+- Otherwise it picks a **random** free address. The range is split in two: a small lower part kept for people who choose an IP by hand, and the rest for random picks. Random picks use the upper part first, so automatic Services rarely take an address someone wanted to set by hand.
+
+**3. It reserves the address.** Production control planes run several API server replicas. Two of them must never hand out the same IP, so the reservation is written to etcd in a way that only one can win.
+
+- **Recent Kubernetes versions** describe the range as a **ServiceCIDR** object. To reserve `10.96.0.50`, the API server creates an **IPAddress** object whose *name* is `10.96.0.50`, with a reference back to the Service. Object names are unique, so if another replica took that IP a moment earlier, the create fails and the API server tries another address. You can see both with `kubectl get servicecidrs` and `kubectl get ipaddresses`. When a range fills up, you can add another ServiceCIDR while the cluster runs.
+- **Older versions** kept the whole range as one bitmap of used and free addresses, stored in a single etcd key, `/registry/ranges/serviceips`. Reserving an IP meant flipping one bit and writing the key back with a compare-and-swap. If another replica had changed it first, the write was rejected and retried.
+
+**4. It saves the Service.** The address goes into `spec.clusterIP` and the Service is written to etcd. If that write fails, the reservation is released.
+
+**5. It cleans up afterwards.** A repair loop inside kube-apiserver regularly compares the reserved addresses with the existing Services. It frees reservations left behind, for example by a crash between steps 3 and 4. It also reports Services whose IP has no reservation.
+
+So creating one Service writes two things to etcd: the IP reservation and the Service itself.
+
+A dual-stack Service goes through this once per IP family and gets one IPv4 and one IPv6 address. A NodePort or LoadBalancer Service also gets a node port the same way, from a separate port range (`--service-node-port-range`, by default 30000 to 32767).
+
 ## Step 3: the controller finds the Pods
 
 Inside the controller-manager runs the **EndpointSlice controller**. Like every controller in Kubernetes, it watches the API server and closes gaps between what is wanted and what exists.

@@ -115,6 +115,8 @@
   .chip { font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 999px; border: 1.5px solid currentColor; white-space: nowrap; }
   .act code { display: block; margin: 5px 0 3px; padding: 4px 8px; background: var(--code-bg); border-radius: 5px; font-size: 12.5px; overflow-wrap: anywhere; }
   .act p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.45; }
+  .act p.more { margin-top: 5px; padding: 5px 8px; border-left: 3px solid var(--t-api); background: var(--code-bg); border-radius: 0 5px 5px 0; color: var(--text); }
+  .act p.more a { color: var(--title); font-weight: 700; }
   .intro-list { margin: 0; padding-left: 18px; font-size: 14px; color: var(--muted); line-height: 1.6; }
   .intro-list b { color: var(--text); }
 
@@ -410,6 +412,7 @@
           type: 'self', at: 'api',
           call: 'authenticate → authorize (RBAC) → admission → validate → allocate ClusterIP',
           text: 'The API server checks who you are and whether you may create Services, validates the object, then picks a free address from the Service IP range: 10.96.0.50. This is the ClusterIP.',
+          more: 'how the address is chosen and reserved in etcd, so that two API servers never hand out the same IP. See <a href="/2026/10/06/Kubernetes-Networking-From-Service-to-Pod.html#how-the-api-server-picks-the-clusterip" target="_top">How the API server picks the ClusterIP</a>.',
           run: function () {
             setState('api', '<span class="lbl">Last request</span>POST services from kubectl<br>✔ authenticated ✔ authorized ✔ valid<br>ClusterIP allocated: <b>10.96.0.50</b>');
           }
@@ -639,7 +642,7 @@
       var t = TYPES[a.type];
       html += '<li class="act" id="act-' + i + '"><span class="num bg-' + t.color + '">' + (i + 1) + '</span><div class="act-body">' +
         '<div class="act-head"><span class="chip c-' + t.color + '">' + t.label + '</span><b>' + actorsText(a) + '</b></div>' +
-        '<code>' + a.call + '</code><p>' + a.text + '</p></div></li>';
+        '<code>' + a.call + '</code><p>' + a.text + '</p>' + (a.more ? '<p class="more"><b>More in the post:</b> ' + a.more + '</p>' : '') + '</div></li>';
     });
     $('panel').innerHTML = html + '</ol>';
   }
