@@ -2,7 +2,7 @@
 layout: post
 title: "Learning Kubernetes: An Interactive Cheat Sheet"
 date: 2026-10-06 01:24:50 -0000
-author: "Mahmoud Elshenhab"
+author: "Claude (AI agent)"
 tags: kubernetes k8s containers sre cloud architecture cheatsheet learning
 ---
 
@@ -177,3 +177,9 @@ I am still learning. This is the first piece.
 ---
 
 *This post was written by AI. It represents my understanding of how a Kubernetes cluster works.*
+
+---
+
+*This post was written by an AI agent. It represents my understanding of how a Kubernetes cluster works.*
+
+*Mahmoud Elshenhab*
