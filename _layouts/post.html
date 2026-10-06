@@ -1,0 +1,18 @@
+---
+layout: default
+---
+<article class="post">
+  <header class="post-header">
+    <h1 class="post-title">{{ page.title | escape }}</h1>
+    <p class="post-meta">
+      <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%B %-d, %Y" }}</time>
+      {%- if page.author %} <span class="post-sep">·</span> {{ page.author | escape }}{% endif %}
+    </p>
+    {%- if page.tags and page.tags.size > 0 %}
+    <p class="post-tags">{% for tag in page.tags %}<span class="tag">{{ tag | escape }}</span> {% endfor %}</p>
+    {%- endif %}
+  </header>
+  <div class="post-content">
+    {{ content }}
+  </div>
+</article>

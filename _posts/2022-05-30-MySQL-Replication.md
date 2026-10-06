@@ -6,7 +6,6 @@ author: "Mahmoud Elshenhab"
 tags: MySQL Database Engine Replication
 ---
 
-# MySQL Binary Log Replication.
 MySQL binary Log replication is one the most used feature in MySQL flavoured Databases as it is the most simple way to replicate data changes across several MySQL nodes. And because it is an Asynchronous replication it has low to no impact on the Master node(s).
 
 ## Binary Log

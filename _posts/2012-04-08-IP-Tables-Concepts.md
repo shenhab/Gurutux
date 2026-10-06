@@ -8,26 +8,27 @@ tags: Linux firewall network iptables
 
 I will try -As much as I can- to explain IP-Tables Concepts in a simple way.
 
-What is IP-Tables ?
+## What is IP-Tables?
 
 (My Definition) The IP-Tables is a peace of software to filter the network transition (Packets).
 
 (Wikipedia’s Definition) iptables is a user space application program that allows a system administrator to configure the tables provided by the Linux kernel firewall (implemented as different Netfilter modules) and the chains and rules it stores.
 
- ## The Contents of IP-Tables:
+## The Contents of IP-Tables:
+
 |Name|Description|
 |---|---|
 |Tables|The Table is: A set of chains which designed to do a specific function|
 |Chains|The Chain is: A set of rules that are applied on packets that traverses the chain. Every Chain have a specified purpose which you will know while we are talking.|
 |Rules|A rule is a set of a condition or several conditions together with a single action. the action of a rule will be applied if all the conditions of that rule have been achieved.|
 
- ![](../media/iptables-table-chain-rule-structure.png)
+![Structure of iptables tables, chains and rules](/media/iptables-table-chain-rule-structure.png)
 
-What is NAT – Network Address Translation ?
+## What is NAT – Network Address Translation?
 
 NAT allows a host or several hosts to share the same IP address in a way.
 
-HOW ?
+### How?
 
 let’s say we have a local network consisting of 5-10 clients. We set their default gateways to point through the NAT server. Normally the packet would simply be forwarded by the gateway machine, but in the case of an NAT server it is a little bit different.
 
@@ -40,6 +41,7 @@ In Linux, there are actually two separate types of NAT that can be used, either 
 There is also a final word that is basically a synonym to SNAT, which is the Masquerade word. In Netfilter, masquerade is pretty much the same as SNAT with the exception that masquerading will automatically set the new source IP to the default IP address of the outgoing network interface.
 
 ## IP-Tables Chains:
+
 |Chain|Explanation|
 |---|---|
 |PREROUTING|Packets will enter this chain before a routing decision is made.|
@@ -49,6 +51,7 @@ There is also a final word that is basically a synonym to SNAT, which is the Mas
 |POSTROUTING|Routing decision has been made. Packets enter this chain just before handing them off to the hardware.|
 
 ## IP-Tables Tables:
+
 |Table|Explanation|
 |---|---|
 |NAT|The NAT table is used mainly for Network Address Translation. “NAT”ed packets get their IP addresses altered, according to our rules. Packets in a stream only traverse this table once. We assume that the first packet of a stream is allowed. The rest of the packets in the same stream are automatically “NAT”ed or Masqueraded etc, and will be subject to the same actions as the first packet. These will, in other words, not go through this table again, but will nevertheless be treated like the first packet in the stream. This is the main reason why you should not do any filtering in this table, which we will discuss at greater length further on. The PREROUTING chain is used to alter packets as soon as they get in to the firewall. The OUTPUT chain is used for altering locally generated packets (i.e., on the firewall) before they get to the routing decision. Finally we have the POSTROUTING chain which is used to alter packets just as they are about to leave the firewall.|

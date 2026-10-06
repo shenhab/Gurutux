@@ -1,13 +1,20 @@
-# _config.yml (Revised - Option A: Using the theme)
-
-title: "GuRuTuX" # Or a more specific title
-url: "https://gurutux.com" # Replace with your actual site URL
-baseurl: "" # Set to /repository-name if applicable, otherwise leave empty
-
-description: "Technical articles and analysis on software engineering and system design." # Example: More precise description
-# show_downloads: true # Verify if theme uses this. If not, remove.
+title: "GuRuTuX"
+description: "Technical articles and analysis on software engineering and system design."
+url: "https://www.gurutux.com"
+baseurl: ""
+lang: en
+author:
+  name: "Mahmoud Elshenhab"
 
 markdown: kramdown
 kramdown:
   input: GFM
-# google_analytics: UA-XXXXX-Y # Uncomment and replace if you use GA
+
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
+  - jekyll-seo-tag
+  - jekyll-redirect-from
+
+feed:
+  posts_limit: 20
