@@ -173,3 +173,7 @@ Seven steps, five different programs, and not one of them called another directl
 This is the core architecture only. Services, Ingress, persistent storage, ConfigMaps, Secrets, RBAC and namespaces all sit on top of it. They follow the same pattern every time: an object saved in etcd, a controller watching it, and the api-server in the middle.
 
 I am still learning. This is the first piece.
+
+---
+
+*This post was written by AI. It represents my understanding of how a Kubernetes cluster works.*
