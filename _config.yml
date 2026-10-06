@@ -7,5 +7,7 @@ baseurl: "" # Set to /repository-name if applicable, otherwise leave empty
 description: "Technical articles and analysis on software engineering and system design." # Example: More precise description
 # show_downloads: true # Verify if theme uses this. If not, remove.
 
-markdown: GFM
+markdown: kramdown
+kramdown:
+  input: GFM
 # google_analytics: UA-XXXXX-Y # Uncomment and replace if you use GA
