@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kubernetes Service to Pod Flow</title>
+<script>
+  /* Pick the theme before first paint: the embedding page, then the saved site choice, then the system setting. */
+  (function () {
+    var t = null;
+    try { if (window.parent !== window) { t = window.parent.document.documentElement.getAttribute('data-theme'); } } catch (e) {}
+    if (t !== 'dark' && t !== 'light') { try { t = localStorage.getItem('theme'); } catch (e) {} }
+    if (t !== 'dark' && t !== 'light') {
+      t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    }
+    document.documentElement.setAttribute('data-theme', t);
+  })();
+</script>
+<style>
+  :root {
+    --bg: #f8fafc;
+    --text: #0f172a;
+    --muted: #475569;
+    --box: #ffffff;
+    --box-border: #e2e8f0;
+    --title: #0369a1;
+    --item: #f1f5f9;
+    --item-text: #334155;
+    --active-bg: #e0f2fe;
+    --active-text: #0c4a6e;
+    --active-border: #0ea5e9;
+    --hl-bg: #d1fae5;
+    --hl-text: #065f46;
+    --hl-border: #10b981;
+    --btn: #0284c7;
+    --btn-hover: #0369a1;
+    --btn-off-bg: #e2e8f0;
+    --btn-off-text: #94a3b8;
+    --reset: #dc2626;
+    --badge: #0284c7;
+    --shadow: 0 4px 12px rgba(15, 23, 42, 0.08);
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f172a;
+    --text: #f8fafc;
+    --muted: #94a3b8;
+    --box: #1e293b;
+    --box-border: #334155;
+    --title: #38bdf8;
+    --item: #334155;
+    --item-text: #e2e8f0;
+    --active-bg: #0c4a6e;
+    --active-text: #e0f2fe;
+    --active-border: #0ea5e9;
+    --hl-bg: #065f46;
+    --hl-text: #a7f3d0;
+    --hl-border: #10b981;
+    --btn: #0ea5e9;
+    --btn-hover: #38bdf8;
+    --btn-off-bg: #334155;
+    --btn-off-text: #64748b;
+    --reset: #ef4444;
+    --badge: #0284c7;
+    --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+  }
+  .widget-container {
+    padding: 24px 16px 28px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h2 { margin: 0 0 4px; font-size: 20px; text-align: center; }
+  .explanation {
+    margin: 12px 0 22px;
+    max-width: 800px;
+    min-height: 72px;
+    text-align: center;
+    font-size: 15px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .explanation strong { color: var(--text); }
+  .controls {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 900px;
+    margin-bottom: 28px;
+  }
+  button {
+    background: var(--btn);
+    color: #ffffff;
+    border: none;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+  }
+  button:hover:not(:disabled) { background: var(--btn-hover); transform: translateY(-2px); }
+  button:disabled { background: var(--btn-off-bg); color: var(--btn-off-text); cursor: not-allowed; }
+  button.reset { background: var(--reset); }
+  .container {
+    display: flex;
+    gap: 32px;
+    width: 100%;
+    max-width: 900px;
+    justify-content: center;
+  }
+  .box {
+    background: var(--box);
+    border: 2px solid var(--box-border);
+    border-radius: 12px;
+    padding: 20px;
+    flex: 1 1 0;
+    max-width: 400px;
+    box-shadow: var(--shadow);
+  }
+  .box-title {
+    font-weight: 800;
+    color: var(--title);
+    margin-bottom: 16px;
+    border-bottom: 2px solid var(--box-border);
+    padding-bottom: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 14px;
+  }
+  .item {
+    background: var(--item);
+    color: var(--item-text);
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border-radius: 6px;
+    opacity: 0.35;
+    transition: all 0.4s ease;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 13px;
+    line-height: 1.45;
+    border: 1px solid transparent;
+  }
+  .item:last-child { margin-bottom: 0; }
+  .item.active {
+    opacity: 1;
+    background: var(--active-bg);
+    color: var(--active-text);
+    border-color: var(--active-border);
+    transform: scale(1.02);
+  }
+  .item.highlight {
+    opacity: 1;
+    background: var(--hl-bg);
+    color: var(--hl-text);
+    border-color: var(--hl-border);
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.4);
+    transform: scale(1.04);
+  }
+  .badge {
+    display: inline-block;
+    background: var(--badge);
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    margin-bottom: 5px;
+    font-family: system-ui, sans-serif;
+    font-weight: 700;
+  }
+  @media (max-width: 720px) {
+    .container { flex-direction: column; gap: 20px; align-items: stretch; }
+    .box { max-width: none; }
+    .explanation { min-height: 96px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .item, button { transition: none; }
+    .item.active, .item.highlight, button:hover:not(:disabled) { transform: none; }
+  }
+</style>
+</head>
+<body>
+<div class="widget-container">
+
+  <h2>Kubernetes Traffic Routing</h2>
+  <div class="explanation" id="exp-text" aria-live="polite"></div>
+
+  <div class="controls">
+    <button id="btn1" onclick="step1()">1. Start Pods</button>
+    <button id="btn2" onclick="step2()" disabled>2. Apply Service</button>
+    <button id="btn3" onclick="step3()" disabled>3. Controller Reconciles</button>
+    <button id="btn4" onclick="step4()" disabled>4. kube-proxy Translates</button>
+    <button id="btn5" onclick="step5()" disabled>5. Send Client Traffic</button>
+    <button id="btnReset" class="reset" onclick="reset()">Reset</button>
+  </div>
+
+  <div class="container">
+    <div class="box">
+      <div class="box-title">Control Plane (API server + etcd)</div>
+
+      <div class="item" id="cp-svc">
+        <span class="badge">Virtual Object</span><br>
+        <strong>Service:</strong> backend-svc<br>
+        <strong>ClusterIP:</strong> 10.96.0.50<br>
+        <strong>Selector:</strong> app=backend
+      </div>
+
+      <div class="item" id="cp-cm">
+        <span class="badge">Controller Manager</span><br>
+        EndpointSlice Controller<br>
+        <em>Watching Services and Pods...</em>
+      </div>
+
+      <div class="item" id="cp-ep"></div>
+    </div>
+
+    <div class="box">
+      <div class="box-title">Worker Node</div>
+
+      <div class="item" id="wn-proxy">
+        <span class="badge">Node Agent</span><br>
+        <strong>kube-proxy</strong><br>
+        <em>Watching the API server (HTTPS watch)...</em>
+      </div>
+
+      <div class="item" id="wn-kernel"></div>
+
+      <div class="item" id="wn-pod1">
+        <span class="badge">Running Pod</span><br>
+        <strong>Pod A</strong> (app=backend)<br>
+        IP: 192.168.1.10
+      </div>
+
+      <div class="item" id="wn-pod2">
+        <span class="badge">Running Pod</span><br>
+        <strong>Pod B</strong> (app=backend)<br>
+        IP: 192.168.1.11
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var INTRO = "Click the steps in order to see how the control plane and the node agents work together to route traffic to a Service.";
+  var EP_EMPTY = "<span class='badge'>API Object</span><br><strong>EndpointSlice</strong><br>Endpoints: [ waiting... ]";
+  var KERNEL_EMPTY = "<span class='badge'>Linux Kernel</span><br><strong>iptables / nftables NAT rules</strong><br>[ no rules for this Service ]";
+  var timers = [];
+
+  function $(id) { return document.getElementById(id); }
+  function later(fn, ms) { timers.push(setTimeout(fn, ms)); }
+  function enableOnly(n) {
+    for (var i = 1; i <= 5; i++) { $('btn' + i).disabled = (i !== n); }
+  }
+
+  function step1() {
+    $('wn-pod1').classList.add('active');
+    $('wn-pod2').classList.add('active');
+    $('exp-text').innerHTML = "<strong>Step 1:</strong> The kubelet starts the Pods through the container runtime. The CNI plugin gives each Pod its own IP address (192.168.1.x). These IPs change every time a Pod is replaced.";
+    enableOnly(2);
+  }
+
+  function step2() {
+    $('cp-svc').classList.add('active');
+    $('exp-text').innerHTML = "<strong>Step 2:</strong> Someone applies a Service manifest. The API server allocates a virtual ClusterIP (10.96.0.50) from the Service IP range and stores the Service in etcd. No process listens on this IP.";
+    enableOnly(3);
+  }
+
+  function step3() {
+    $('cp-cm').classList.add('active');
+    later(function () {
+      $('cp-ep').classList.add('active');
+      $('cp-ep').innerHTML = "<span class='badge'>API Object</span><br><strong>EndpointSlice</strong><br>Endpoints: [ 192.168.1.10, 192.168.1.11 ]";
+    }, 400);
+    $('exp-text').innerHTML = "<strong>Step 3:</strong> The EndpointSlice controller sees the Service's selector (app=backend), finds the ready Pods with that label, and writes their IPs into an EndpointSlice through the API server.";
+    enableOnly(4);
+  }
+
+  function step4() {
+    $('wn-proxy').classList.add('active');
+    later(function () {
+      $('wn-kernel').classList.add('active');
+      $('wn-kernel').innerHTML = "<span class='badge'>Linux Kernel</span><br><strong>iptables / nftables NAT rules</strong><br>IF dest == 10.96.0.50:80<br>&nbsp;&nbsp;&boxur;&rarr; 50% DNAT to 192.168.1.10<br>&nbsp;&nbsp;&boxur;&rarr; 50% DNAT to 192.168.1.11";
+    }, 400);
+    $('exp-text').innerHTML = "<strong>Step 4:</strong> kube-proxy, which runs on every node, receives the Service and EndpointSlice through its watch and programs the local kernel with NAT rules for the ClusterIP.";
+    enableOnly(5);
+  }
+
+  function step5() {
+    ['cp-svc', 'cp-ep', 'cp-cm', 'wn-proxy'].forEach(function (id) { $(id).classList.remove('active'); });
+    $('wn-kernel').classList.add('highlight');
+    later(function () {
+      $('wn-kernel').classList.remove('highlight');
+      $('wn-kernel').classList.add('active');
+      $('wn-pod1').classList.add('highlight');
+    }, 1000);
+    $('exp-text').innerHTML = "<strong>Step 5:</strong> A packet leaves a client for 10.96.0.50. The kernel matches the NAT rule, picks Pod A at random, rewrites the destination, and forwards the packet. The control plane is not involved at all.";
+    enableOnly(0);
+  }
+
+  function reset() {
+    timers.forEach(clearTimeout);
+    timers = [];
+    document.querySelectorAll('.item').forEach(function (el) { el.classList.remove('active', 'highlight'); });
+    $('cp-ep').innerHTML = EP_EMPTY;
+    $('wn-kernel').innerHTML = KERNEL_EMPTY;
+    $('exp-text').innerHTML = INTRO;
+    enableOnly(1);
+  }
+
+  reset();
+
+  // Theme changes from the embedding page.
+  window.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'set-theme' && (e.data.theme === 'dark' || e.data.theme === 'light')) {
+      document.documentElement.setAttribute('data-theme', e.data.theme);
+    }
+  });
+
+  // Tell the embedding page how tall we are so the iframe can fit.
+  (function autoResize() {
+    var c = document.querySelector('.widget-container');
+    function notifyHeight() {
+      var h = Math.ceil(c.getBoundingClientRect().height);
+      if (window.parent !== window) { window.parent.postMessage({ type: 'widget-resize', height: h }, '*'); }
+    }
+    window.addEventListener('load', function () { setTimeout(notifyHeight, 120); });
+    new ResizeObserver(notifyHeight).observe(c);
+  })();
+</script>
+</body>
+</html>

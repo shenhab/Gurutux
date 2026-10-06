@@ -5,3 +5,11 @@
   widget: /assets/widgets/k8s-visual-cheat-sheet.html
   post: /2026/10/06/Learning-Kubernetes-An-Interactive-Cheat-Sheet.html
   tags: [kubernetes, architecture]
+
+- title: Kubernetes Service to Pod Flow
+  description: >-
+    Step-by-step walkthrough of how a Service's virtual ClusterIP becomes kernel NAT rules
+    on every node, and how a packet reaches a Pod without touching the control plane.
+  widget: /assets/widgets/k8s-service-to-pod-flow.html
+  post: /2026/10/06/Kubernetes-Networking-From-Service-to-Pod.html
+  tags: [kubernetes, networking]
